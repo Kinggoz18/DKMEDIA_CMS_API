@@ -6,7 +6,7 @@ import { IReply, IReplyType } from "../interfaces/IReply";
 import { RequestQueryValidation, RequestQueryValidationType } from "../types/RequestQuery.type";
 import { OrganizerService } from "../services/organizer.service";
 import { OrganizerDocument } from "../schema/organizer";
-import { AddOrganizerValidationType, OrganizerValidationSchema, UpdateOrganizerValidationType } from "../types/organizer.type";
+import { AddOrganizerValidationSchema, AddOrganizerValidationType, UpdateOrganizerValidationSchema, UpdateOrganizerValidationType } from "../types/organizer.type";
 
 export class OrganizerRoute implements IRoute<OrganizerDocument> {
   service: OrganizerService;
@@ -50,7 +50,7 @@ export class OrganizerRoute implements IRoute<OrganizerDocument> {
         method: 'POST',
         url: '/',
         schema: {
-          body: OrganizerValidationSchema,
+          body: AddOrganizerValidationSchema,
           response: IReply.$schema,
         },
         handler: (request, reply) => this.service.addOrganizer(request, reply)
@@ -94,7 +94,7 @@ export class OrganizerRoute implements IRoute<OrganizerDocument> {
         method: 'PUT',
         url: '/',
         schema: {
-          body: OrganizerValidationSchema,
+          body: UpdateOrganizerValidationSchema,
           response: IReply.$schema,
         },
         handler: (request, reply) => this.service.updateOrganizer(request, reply)

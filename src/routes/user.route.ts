@@ -6,9 +6,11 @@ import { IReply, IReplyType } from "../interfaces/IReply";
 import { UserDocument } from "../schema/user";
 import IRoute from "../interfaces/IRoute";
 import { RequestQueryValidation, RequestQueryValidationType } from "../types/RequestQuery.type";
+import { AuthRequestQueryValidationType } from "../types/AuthRequestQuery.type";
 
 /**
  * Auth route class. Used to create and register auth routes
+ * TODO: Complete user route
  */
 export class UserRoute implements IRoute<UserDocument> {
   service: UserService;
@@ -62,16 +64,16 @@ export class UserRoute implements IRoute<UserDocument> {
         handler: (request, reply) => this.service.getUser(request, reply)
       }
 
-      const loginUserRoute: RouteOptions<Server, IncomingMessage, ServerResponse> = {
-        method: 'GET',
+      const loginUserRoute: RouteOptions<Server, IncomingMessage, ServerResponse, {Body: AuthRequestQueryValidationType}> = {
+        method: 'POST',
         url: `/`,
-        handler: (request, reply) => this.service.loginUser(request, reply)
+        handler: (request, reply) => this.service.googleAuthHandler(request, reply)
       }
 
       const registerUserRoute: RouteOptions<Server, IncomingMessage, ServerResponse> = {
         method: 'POST',
-        url: '/',
-        handler: (request, reply) => this.service.registerUser(request, reply)
+        url: '/google/callback',
+        handler: (request, reply) => this.service.googleAuthHandlerCallback(request, reply)
       }
 
       const deleteUserRoute: RouteOptions<Server, IncomingMessage, ServerResponse> = {
@@ -85,6 +87,7 @@ export class UserRoute implements IRoute<UserDocument> {
         app.route(registerUserRoute)
         app.route(loginUserRoute)
         app.route(getUserRoute)
+        app.route(deleteUserRoute)
         done()
       }, { prefix: this.basePath })
 

@@ -1,4 +1,4 @@
-import { mongodb } from "@fastify/mongodb";
+import { mongodb, ObjectId } from "@fastify/mongodb";
 import IService from "../interfaces/IService";
 import { FastifyBaseLogger, FastifyReply, FastifyRequest } from "fastify";
 import { RequestQueryValidationType } from "../types/RequestQuery.type";
@@ -65,7 +65,7 @@ export class UploadedMediaService implements IService<UploadedMediaDocument> {
   deleteMedia = async (request: FastifyRequest<{ Params: RequestQueryValidationType }>, reply: FastifyReply<{ Reply: IReplyType }>) => {
     try {
       const { id } = request.params;
-      const mediaToDelete = await this.dbCollection.deleteOne({ _id: new Object(id) });
+      const mediaToDelete = await this.dbCollection.deleteOne({ _id: new ObjectId(id) });
       if (mediaToDelete.deletedCount != 1) {
         throw new ReplyError("Failed to delete media", 400);
       }
@@ -86,10 +86,10 @@ export class UploadedMediaService implements IService<UploadedMediaDocument> {
   getMediaById = async (request: FastifyRequest<{ Params: RequestQueryValidationType }>, reply: FastifyReply<{ Reply: IReplyType }>) => {
     try {
       const { id } = request.params;
-      const media = await this.dbCollection.findOne({ _id: new Object(id) });
+      const media = await this.dbCollection.findOne({ _id: new ObjectId(id) });
 
       if (!media) {
-        throw new ReplyError("Failed to save media", 400);
+        throw new ReplyError("Failed to get media", 400);
       }
 
       return reply.code(200).send({ data: media, success: true })

@@ -1,6 +1,6 @@
 import mongoose, { Document } from "mongoose";
 import { mediaType } from "../Enums/mediaType";
-import { ObjectId } from "mongoose";
+import { ObjectId } from "@fastify/mongodb";
 
 
 export interface UploadedMediaDocument extends Document {

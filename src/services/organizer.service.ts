@@ -116,8 +116,10 @@ export class OrganizerService implements IService<OrganizerDocument> {
       const newLogo = logo ?? organizerToUpdate.logo;
 
       await this.dbCollection.updateOne({ _id: organizerToUpdate._id }, {
-        name: newName,
-        logo: newLogo
+        $set: {
+          name: newName,
+          logo: newLogo
+        }
       });
 
       // Return the updated document

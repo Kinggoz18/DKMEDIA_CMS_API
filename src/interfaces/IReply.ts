@@ -6,6 +6,7 @@ import { ContactUsValidationSchema } from "../types/contactUs.type";
 import { SubscriptionValidationSchema } from "../types/subscription.type";
 import { OrganizerValidationSchema } from "../types/organizer.type";
 import { UploadedMediaValidation } from "../types/uploadedMedia.type";
+import { ContactValidationSchema } from "../types/contact.type";
 
 /**
  * IReply object used for request replies.
@@ -13,17 +14,17 @@ import { UploadedMediaValidation } from "../types/uploadedMedia.type";
 export const IReply = Type.Object({
   '2xx': Type.Object({
     success: Type.Boolean(),
-    data: Type.Union([Type.String(), EventValidationSchema, UserValidationSchema, AboutUsValidationSchema, ContactUsValidationSchema, SubscriptionValidationSchema, OrganizerValidationSchema, UploadedMediaValidation])
+    data: Type.Union([Type.String(), EventValidationSchema, UserValidationSchema, AboutUsValidationSchema, ContactUsValidationSchema, SubscriptionValidationSchema, OrganizerValidationSchema, UploadedMediaValidation, ContactValidationSchema])
   }),
 
   '4xx': Type.Object({
     success: Type.Boolean(),
-    data: Type.Union([Type.String(), EventValidationSchema, UserValidationSchema, AboutUsValidationSchema, ContactUsValidationSchema, SubscriptionValidationSchema, OrganizerValidationSchema, UploadedMediaValidation])
+    data: Type.Union([Type.String(), EventValidationSchema, UserValidationSchema, AboutUsValidationSchema, ContactUsValidationSchema, SubscriptionValidationSchema, OrganizerValidationSchema, UploadedMediaValidation, ContactValidationSchema])
   }),
 
   500: Type.Object({
     success: Type.Boolean(),
-    data: Type.Union([Type.String(), EventValidationSchema, UserValidationSchema, AboutUsValidationSchema, ContactUsValidationSchema, SubscriptionValidationSchema, OrganizerValidationSchema, UploadedMediaValidation])
+    data: Type.Union([Type.String(), EventValidationSchema, UserValidationSchema, AboutUsValidationSchema, ContactUsValidationSchema, SubscriptionValidationSchema, OrganizerValidationSchema, UploadedMediaValidation, ContactValidationSchema])
   }),
 });
 

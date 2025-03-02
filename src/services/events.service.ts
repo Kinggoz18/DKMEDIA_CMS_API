@@ -82,7 +82,7 @@ export class EventService implements IService<EventDocument> {
       const deleteResult = await this.dbCollection.deleteOne({ _id: new ObjectId(id) });
       if (!deleteResult.acknowledged) throw new ReplyError("Failed to delete devent", 400);
 
-      return reply.code(200).send({ success: deleteResult.acknowledged, data: "Event deleted" })
+      return reply.code(200).send({ success: deleteResult.acknowledged, data: "event deleted" })
     } catch (error: any) {
       if (error instanceof ReplyError)
         return reply.status(error.code).send({ success: false, data: error.message });
@@ -148,7 +148,7 @@ export class EventService implements IService<EventDocument> {
       const event = await this.dbCollection.findOne({ _id: new ObjectId(id) });
       if (!event?._id) throw new ReplyError("Event does not exist", 404);
 
-      await this.dbCollection.updateOne({ _id: new ObjectId(id) }, {
+      const updateResult = await this.dbCollection.updateOne({ _id: event?._id }, {
         $set: {
           title: title ?? event.title,
           date: date ?? event.date,
@@ -158,8 +158,18 @@ export class EventService implements IService<EventDocument> {
         }
       });
 
-      console.log({ Updated: event })
-      return reply.status(200).send({ success: true, data: event })
+      if (!updateResult.acknowledged) {
+        throw new ReplyError("Failed to update event", 400);
+      }
+
+      const updatedEvent = await this.dbCollection.findOne({ _id: event?._id });
+
+      if (!updatedEvent) {
+        throw new ReplyError("Failed to get updated event", 404);
+      }
+
+      console.log({ Updated: updatedEvent })
+      return reply.status(200).send({ success: true, data: updatedEvent })
     } catch (error: any) {
       console.log({ error })
       if (error instanceof ReplyError)

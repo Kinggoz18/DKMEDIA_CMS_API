@@ -4,21 +4,21 @@ import { mongodb } from "@fastify/mongodb";
 import { IncomingMessage, Server, ServerResponse } from "http";
 import { IReply, IReplyType } from "../interfaces/IReply";
 import { RequestQueryValidation, RequestQueryValidationType } from "../types/RequestQuery.type";
-import { ContactUsDocument } from "../schema/contactUs";
-import { ContactUsService } from "../services/contactUs.service";
-import { AddContactUsValidationSchema, AddContactUsValidationType, ContactUsValidationSchema, ContactUsValidationType } from "../types/contactUs.type";
+import { ContactDocument } from "../schema/contact";
+import { ContactService } from "../services/contact.service";
+import { UpdateContactValidationSchema, UpdateContactValidationType } from "../types/contact.type";
 
-export class ContactUsRoute implements IRoute<ContactUsDocument> {
-  service: ContactUsService;
+export class ContactRoute implements IRoute<ContactDocument> {
+  service: ContactService;
   server: FastifyInstance;
-  collection: mongodb.Collection<ContactUsDocument>;
+  collection: mongodb.Collection<ContactDocument>;
   logger: FastifyBaseLogger;
-  basePath: string = '/contact-us';
+  basePath: string = '/contact';
 
   constructor(server: FastifyInstance, database: mongodb.Db, logger: FastifyBaseLogger) {
     this.server = server;
-    this.collection = database.collection<ContactUsDocument>('contacts');
-    this.service = new ContactUsService(this.collection, logger);
+    this.collection = database.collection<ContactDocument>('contact');
+    this.service = new ContactService(this.collection, logger);
     this.logger = logger
 
     if (!this.server) {
@@ -43,44 +43,37 @@ export class ContactUsRoute implements IRoute<ContactUsDocument> {
   initRoutes() {
     try {
       /******************************************* Route Declarations *******************************************/
-      const addContactRoute: RouteOptions<Server, IncomingMessage, ServerResponse, { Body: AddContactUsValidationType, Reply: IReplyType }> = {
+      const addContactRoute: RouteOptions<Server, IncomingMessage, ServerResponse, { Body: UpdateContactValidationType, Reply: IReplyType }> = {
         method: 'POST',
         url: '/',
         schema: {
-          body: AddContactUsValidationSchema,
+          body: UpdateContactValidationSchema,
           response: IReply.$schema,
         },
-        handler: (request, reply) => this.service.addContact(request, reply)
+        handler: (request, reply) => this.service.updateContact(request, reply)
       }
 
-      const deleteContactRoute: RouteOptions<Server, IncomingMessage, ServerResponse, { Params: RequestQueryValidationType, Reply: IReplyType }> = {
+      const deleteContactRoute: RouteOptions<Server, IncomingMessage, ServerResponse, { Reply: IReplyType }> = {
         method: 'DELETE',
-        url: '/:id',
+        url: '/',
         schema: {
-          params: RequestQueryValidation,
           response: IReply.$schema,
         },
         handler: (request, reply) => this.service.deleteContact(request, reply)
       }
 
-      const getAllContactRoute: RouteOptions<Server, IncomingMessage, ServerResponse> = {
+      const getAllContactRoute: RouteOptions<Server, IncomingMessage, ServerResponse, { Reply: IReplyType }> = {
         method: 'GET',
         url: '/',
-        handler: (request, reply) => this.service.getAllContact(request, reply)
+        handler: (request, reply) => this.service.getContact(request, reply)
       }
 
-      const getContactInquiryByIdRoute: RouteOptions<Server, IncomingMessage, ServerResponse, { Params: RequestQueryValidationType, Reply: IReplyType }> = {
-        method: 'GET',
-        url: '/:id',
-        handler: (request, reply) => this.service.getContactInquiryById(request, reply)
-      }
 
       /******************************************* Register Routes *******************************************/
       this.server.register(function (app, _, done) {
         app.route(addContactRoute)
         app.route(deleteContactRoute)
         app.route(getAllContactRoute)
-        app.route(getContactInquiryByIdRoute)
 
         done()
       }, { prefix: this.basePath })

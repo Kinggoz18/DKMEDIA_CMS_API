@@ -4,7 +4,7 @@ import { mongodb } from "@fastify/mongodb";
 import { IncomingMessage, Server, ServerResponse } from "http";
 import { IReply, IReplyType } from "../interfaces/IReply";
 import { RequestQueryValidation, RequestQueryValidationType } from "../types/RequestQuery.type";
-import { SubscriptionValidationSchema, SubscriptionValidationType } from "../types/subscription.type";
+import { AddSubscriptionValidationSchema, AddSubscriptionValidationType } from "../types/subscription.type";
 import { SubscriptionService } from "../services/Subscription.service";
 import { SubscriptionDocument } from "../schema/subscription";
 
@@ -46,11 +46,11 @@ export class SubscriptionRoute implements IRoute<SubscriptionDocument> {
       /**
        * Add subscription route
        */
-      const addSubscriptionRoute: RouteOptions<Server, IncomingMessage, ServerResponse, { Body: SubscriptionValidationType, Reply: IReplyType }> = {
+      const addSubscriptionRoute: RouteOptions<Server, IncomingMessage, ServerResponse, { Body: AddSubscriptionValidationType, Reply: IReplyType }> = {
         method: 'POST',
         url: '/',
         schema: {
-          body: SubscriptionValidationSchema,
+          body: AddSubscriptionValidationSchema,
           response: IReply.$schema,
         },
         handler: (request, reply) => this.service.addSubscription(request, reply)

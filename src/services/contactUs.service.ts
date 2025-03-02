@@ -61,7 +61,7 @@ export class ContactUsService implements IService<ContactUsDocument> {
 
       //TODO: Send email here
 
-      return reply.code(200).send({ data: getNewContactUs, success: newContactUs.acknowledged })
+      return reply.code(201).send({ data: getNewContactUs, success: newContactUs.acknowledged })
 
     } catch (error: any) {
       if (error instanceof ReplyError)
@@ -79,7 +79,7 @@ export class ContactUsService implements IService<ContactUsDocument> {
         throw new ReplyError("Contact us inquiry not found", 404);
       }
 
-      return reply.status(201).send({ data: "Deleted successfuly", success: true });
+      return reply.status(200).send({ data: "Deleted successfuly", success: true });
     } catch (error) {
       if (error instanceof ReplyError)
         return reply.status(error.code).send({ success: false, data: error.message });

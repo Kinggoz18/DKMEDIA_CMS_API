@@ -33,6 +33,16 @@ export const UserAuth = Type.Object({
   rtExpiresAt: Type.Date(),
 })
 
+export const AuthCallbackValidationSchema = Type.Object({
+  _id: Type.Unknown(),
+  firstName: Type.String(),
+  lastName: Type.String(),
+  email: Type.String({ format: 'email' }),
+}, {
+  mode: Type.String(),
+})
+
 export type UserAuthType = Static<typeof UserAuth>;
 export type UserDeviceType = Static<typeof UserDevice>;
 export type AuthTokenType = Static<typeof AuthToken>;
+export type AuthCallbackValidationType = Static<typeof AuthCallbackValidationSchema>;

@@ -39,6 +39,7 @@ export class AboutUsService implements IService<AboutUsDocument> {
 
       const currentAboutUs = await this.dbCollection.findOne({});
 
+      console.log({ currentAboutUs })
       //If there is no about us
       if (!currentAboutUs) {
         const updateAboutUs = await this.dbCollection.insertOne(aboutUs);
@@ -53,24 +54,33 @@ export class AboutUsService implements IService<AboutUsDocument> {
       } else {
         //Update the values
         const updatedTitle = title === "" ? currentAboutUs.title : title;
-        const updatedParagraphs = paragraphs?.length == 0 ? currentAboutUs.paragraphs : paragraphs;
 
-        const newUpdate = new this.dbModel({ title: updatedTitle, paragraphs: updatedParagraphs })
-        await newUpdate.validate();
-
+        console.log({updatedTitle, paragraphs})
         // Insert the new update
-        const updateAboutUs = await this.dbCollection.insertOne(newUpdate);
-        const getSavedAboutUs = await this.dbCollection.findOne({ _id: updateAboutUs?.insertedId });
+        const updateAboutUs = await this.dbCollection.updateOne({ _id: currentAboutUs?._id }, {
+          $set: {
+            title: updatedTitle,
+            paragraphs: paragraphs ?? currentAboutUs.paragraphs
+          }
+        });
 
-        if (!getSavedAboutUs) {
+        if (!updateAboutUs.acknowledged) {
           this.logger.error('Failed to update about us')
           throw new ReplyError("Failed to update about us", 400);
+        }
+
+        const getSavedAboutUs = await this.dbCollection.findOne({ _id: currentAboutUs?._id });
+
+        if (!getSavedAboutUs) {
+          this.logger.error('Failed to get update about us')
+          throw new ReplyError("Failed to get update about us", 400);
         }
 
         return reply.code(200).send({ data: getSavedAboutUs, success: updateAboutUs.acknowledged })
       }
 
     } catch (error: any) {
+      console.log({ error })
       if (error instanceof ReplyError)
         return reply.status(error.code).send({ success: false, data: error.message });
       else return reply.status(500).send({ success: false, data: "Sorry, something went wrong" })

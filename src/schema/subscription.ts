@@ -5,17 +5,13 @@ export interface SubscriptionDocument extends Document {
   _id: ObjectId,
   firstName: string;
   lastName: string;
-  company: string;
   email: string;
-  phone: string;
 }
 
 export const SubscriptionMongooseSchema = new Schema<SubscriptionDocument>({
   firstName: { type: String },
   lastName: { type: String },
-  company: { type: String },
   email: { type: String },
-  phone: { type: String },
 }, { timestamps: true });
 
 export const SubscriptionModel = mongoose.model("Subscription", SubscriptionMongooseSchema) 
