@@ -43,6 +43,10 @@ export class EventRoute implements IRoute<EventDocument> {
   initRoutes() {
     try {
       /******************************************* Route Declarations *******************************************/
+
+      /**
+       * Add event route
+       */
       const addEventRoute: RouteOptions<Server, IncomingMessage, ServerResponse, { Body: AddEventValidationType, Reply: IReplyType }> = {
         method: 'POST',
         url: '/',
@@ -53,6 +57,9 @@ export class EventRoute implements IRoute<EventDocument> {
         handler: (request, reply) => this.service.addEvent(request, reply)
       }
 
+      /**
+       * Delete event route
+       */
       const deleteEventRoute: RouteOptions<Server, IncomingMessage, ServerResponse, { Params: RequestQueryValidationType, Reply: IReplyType }> = {
         method: 'DELETE',
         url: '/:id',
@@ -63,18 +70,27 @@ export class EventRoute implements IRoute<EventDocument> {
         handler: (request, reply) => this.service.deleteEvent(request, reply)
       }
 
+      /**
+       * Get all events route
+       */
       const getAllEventsRoute: RouteOptions<Server, IncomingMessage, ServerResponse> = {
         method: 'GET',
         url: '/',
         handler: (request, reply) => this.service.getAllEvents(request, reply)
       }
 
+      /**
+       * Get an event by Id route
+       */
       const getEventByIdRoute: RouteOptions<Server, IncomingMessage, ServerResponse, { Params: RequestQueryValidationType, Reply: IReplyType }> = {
         method: 'GET',
         url: '/:id',
         handler: (request, reply) => this.service.getEventById(request, reply)
       }
 
+      /**
+       * Update an event route
+       */
       const updateEventByIdRoute: RouteOptions<Server, IncomingMessage, ServerResponse, { Body: UpdateEventValidationType, Reply: IReplyType }> = {
         method: 'PUT',
         url: '/',

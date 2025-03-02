@@ -5,7 +5,7 @@ import { ObjectId } from "@fastify/mongodb";
 export interface AboutUsDocument extends Document {
   _id: ObjectId,
   title: string;
-  paragraphs: [String];
+  paragraphs: [string];
 }
 
 export const AboutUsMongooseSchema = new Schema<AboutUsDocument>({

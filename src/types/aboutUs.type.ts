@@ -5,11 +5,11 @@ export const AddAboutUsValidation = Type.Object({
   paragraphs: Type.Optional(Type.Array(Type.String())),
 })
 
-export const AboutUsValidation = Type.Object({
+export const AboutUsValidationSchema = Type.Object({
   _id: Type.Unknown(),
   title: Type.String(),
   paragraphs: Type.Array(Type.String()),
 })
 
-export type AboutUsValidationType = Static<typeof AboutUsValidation>
+export type AboutUsValidationType = Static<typeof AboutUsValidationSchema>
 export type AddAboutUsValidationType = Static<typeof AddAboutUsValidation>

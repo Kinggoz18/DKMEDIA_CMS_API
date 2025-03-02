@@ -5,8 +5,8 @@ import { ObjectId } from "mongoose";
 
 export interface UploadedMediaDocument extends Document {
   _id: ObjectId,
-  mediaType: string;
-  mediaLink: String;
+  mediaType: mediaType;
+  mediaLink: string;
 }
 
 export const UploadedMediaMongooseSchema = new mongoose.Schema<UploadedMediaDocument>({

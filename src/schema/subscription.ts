@@ -4,7 +4,7 @@ import { ObjectId } from "@fastify/mongodb";
 export interface SubscriptionDocument extends Document {
   _id: ObjectId,
   firstName: string;
-  lastName: String;
+  lastName: string;
   company: string;
   email: string;
   phone: string;

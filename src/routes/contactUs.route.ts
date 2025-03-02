@@ -5,11 +5,11 @@ import { IncomingMessage, Server, ServerResponse } from "http";
 import { IReply, IReplyType } from "../interfaces/IReply";
 import { RequestQueryValidation, RequestQueryValidationType } from "../types/RequestQuery.type";
 import { ContactUsDocument } from "../schema/contactUs";
-import { ContactService } from "../services/contact.service";
-import { ContactUsValidation, ContactUsValidationType } from "../types/contactUs.type";
+import { ContactUsService } from "../services/contactUs.service";
+import { ContactUsValidationSchema, ContactUsValidationType } from "../types/contactUs.type";
 
-export class ContactsRoute implements IRoute<ContactUsDocument> {
-  service: ContactService;
+export class ContactUsRoute implements IRoute<ContactUsDocument> {
+  service: ContactUsService;
   server: FastifyInstance;
   collection: mongodb.Collection<ContactUsDocument>;
   logger: FastifyBaseLogger;
@@ -18,7 +18,7 @@ export class ContactsRoute implements IRoute<ContactUsDocument> {
   constructor(server: FastifyInstance, database: mongodb.Db, logger: FastifyBaseLogger) {
     this.server = server;
     this.collection = database.collection<ContactUsDocument>('contacts');
-    this.service = new ContactService(this.collection, logger);
+    this.service = new ContactUsService(this.collection, logger);
     this.logger = logger
 
     if (!this.server) {
@@ -47,7 +47,7 @@ export class ContactsRoute implements IRoute<ContactUsDocument> {
         method: 'POST',
         url: '/',
         schema: {
-          body: ContactUsValidation,
+          body: ContactUsValidationSchema,
           response: IReply.$schema,
         },
         handler: (request, reply) => this.service.addContact(request, reply)
@@ -69,10 +69,10 @@ export class ContactsRoute implements IRoute<ContactUsDocument> {
         handler: (request, reply) => this.service.getAllContact(request, reply)
       }
 
-      const getContactByIdRoute: RouteOptions<Server, IncomingMessage, ServerResponse, { Params: RequestQueryValidationType, Reply: IReplyType }> = {
+      const getContactInquiryByIdRoute: RouteOptions<Server, IncomingMessage, ServerResponse, { Params: RequestQueryValidationType, Reply: IReplyType }> = {
         method: 'GET',
         url: '/:id',
-        handler: (request, reply) => this.service.getContactById(request, reply)
+        handler: (request, reply) => this.service.getContactInquiryById(request, reply)
       }
 
       /******************************************* Register Routes *******************************************/
@@ -80,7 +80,7 @@ export class ContactsRoute implements IRoute<ContactUsDocument> {
         app.route(addContactRoute)
         app.route(deleteContactRoute)
         app.route(getAllContactRoute)
-        app.route(getContactByIdRoute)
+        app.route(getContactInquiryByIdRoute)
 
         done()
       }, { prefix: this.basePath })

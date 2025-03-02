@@ -5,8 +5,8 @@ import { IncomingMessage, Server, ServerResponse } from "http";
 import { IReply, IReplyType } from "../interfaces/IReply";
 import { RequestQueryValidation, RequestQueryValidationType } from "../types/RequestQuery.type";
 import { UploadedMediaService } from "../services/uploadedMedia.service";
-import { UploadedMediaDocument, UploadedMediaMongooseSchema } from "../schema/uploadedMedia";
-import { UploadedMediaValidationType } from "../types/uploadedMedia.type";
+import { UploadedMediaDocument } from "../schema/uploadedMedia";
+import { UploadedMediaValidation, UploadedMediaValidationType } from "../types/uploadedMedia.type";
 
 export class UploadMediaRoute implements IRoute<UploadedMediaDocument> {
   service: UploadedMediaService;
@@ -43,16 +43,22 @@ export class UploadMediaRoute implements IRoute<UploadedMediaDocument> {
   initRoutes() {
     try {
       /******************************************* Route Declarations *******************************************/
+      /**
+       * Add a media route
+       */
       const addMedia: RouteOptions<Server, IncomingMessage, ServerResponse, { Body: UploadedMediaValidationType, Reply: IReplyType }> = {
         method: 'POST',
         url: '/',
         schema: {
-          body: UploadedMediaMongooseSchema,
+          body: UploadedMediaValidation,
           response: IReply.$schema,
         },
-        handler: (request, reply) => { }
+        handler: (request, reply) => this.service.addMedia(request, reply)
       }
 
+      /**
+       * Delete a media route
+       */
       const deleteMedia: RouteOptions<Server, IncomingMessage, ServerResponse, { Params: RequestQueryValidationType, Reply: IReplyType }> = {
         method: 'DELETE',
         url: '/:id',
@@ -60,19 +66,25 @@ export class UploadMediaRoute implements IRoute<UploadedMediaDocument> {
           params: RequestQueryValidation,
           response: IReply.$schema,
         },
-        handler: (request, reply) => { }
+        handler: (request, reply) => this.service.deleteMedia(request, reply)
       }
 
+      /**
+       * Get all Media route
+       */
       const getAllMediaRoute: RouteOptions<Server, IncomingMessage, ServerResponse> = {
         method: 'GET',
         url: '/',
-        handler: (request, reply) => { }
+        handler: (request, reply) => this.service.getAllMedia(request, reply)
       }
 
+      /**
+       * Get a media by id route
+       */
       const getMediaByIdRoute: RouteOptions<Server, IncomingMessage, ServerResponse, { Params: RequestQueryValidationType, Reply: IReplyType }> = {
         method: 'GET',
         url: '/:id',
-        handler: (request, reply) => { }
+        handler: (request, reply) => this.service.getMediaById(request, reply)
       }
 
       /******************************************* Register Routes *******************************************/

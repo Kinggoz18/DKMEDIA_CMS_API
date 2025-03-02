@@ -4,10 +4,11 @@ import { ObjectId } from "@fastify/mongodb";
 export interface ContactUsDocument extends Document {
   _id: ObjectId,
   firstName: string;
-  lastName: String;
+  lastName: string;
   company: string;
   email: string;
   phone: string;
+  message: string;
 }
 
 export const ContactUsMongooseSchema = new Schema<ContactUsDocument>({
@@ -16,6 +17,7 @@ export const ContactUsMongooseSchema = new Schema<ContactUsDocument>({
   company: { type: String },
   email: { type: String },
   phone: { type: String },
+  message: { type: String },
 }, { timestamps: true });
 
 export const ContactUsModel = mongoose.model("ContactUs", ContactUsMongooseSchema) 

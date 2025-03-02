@@ -5,7 +5,7 @@ import { EventRoute } from "./event.route";
 import { UploadMediaRoute } from "./uploadedMedia.route";
 import { OrganizerRoute } from "./organizer.route";
 import { SubscriptionRoute } from "./subscription.route";
-import { ContactsRoute } from "./contact.route";
+import { ContactUsRoute } from "./contactUs.route";
 import { AboutUsRoute } from "./aboutUs.route";
 
 
@@ -14,7 +14,7 @@ export const initAppRoutes = (server: FastifyInstance, database: mongodb.Db, don
     const authRoute: UserRoute = new UserRoute(server, database, server.log);
     const eventRoute: EventRoute = new EventRoute(server, database, server.log);
     const aboutUsRoute: AboutUsRoute = new AboutUsRoute(server, database, server.log);
-    const contactUsRoute: ContactsRoute = new ContactsRoute(server, database, server.log);
+    const contactUsRoute: ContactUsRoute = new ContactUsRoute(server, database, server.log);
     const subscriptionRoute: SubscriptionRoute = new SubscriptionRoute(server, database, server.log);
     const organizerRoute: OrganizerRoute = new OrganizerRoute(server, database, server.log);
     const uploadedMediaRoute: UploadMediaRoute = new UploadMediaRoute(server, database, server.log);
@@ -22,11 +22,11 @@ export const initAppRoutes = (server: FastifyInstance, database: mongodb.Db, don
     /***************************************************** Initialize Routes *****************************************************/
     authRoute.initRoutes();
     eventRoute.initRoutes();
-    // aboutUsRoute.initRoutes();
-    // contactUsRoute.initRoutes();
-    // subscriptionRoute.initRoutes();
-    // organizerRoute.initRoutes();
-    // uploadedMediaRoute.initRoutes();
+    aboutUsRoute.initRoutes();
+    contactUsRoute.initRoutes();
+    subscriptionRoute.initRoutes();
+    organizerRoute.initRoutes();
+    uploadedMediaRoute.initRoutes();
     done()
   } catch (error: any) {
     throw new Error(error.message)

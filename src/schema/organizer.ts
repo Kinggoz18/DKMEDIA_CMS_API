@@ -1,7 +1,7 @@
 import mongoose, { Document, Schema } from "mongoose";
-
+import { ObjectId } from "@fastify/mongodb";
 export interface OrganizerDocument extends Document {
-  _id: string,
+  _id: ObjectId,
   name: string;
   logo: string;
 }

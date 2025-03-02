@@ -43,34 +43,43 @@ export class AboutUsRoute implements IRoute<AboutUsDocument> {
   initRoutes() {
     try {
       /******************************************* Route Declarations *******************************************/
-      const addAboutUsRoute: RouteOptions<Server, IncomingMessage, ServerResponse, { Body: AddAboutUsValidationType, Reply: IReplyType }> = {
+      /**
+       * Update about us section route
+       */
+      const updateAboutUsRoute: RouteOptions<Server, IncomingMessage, ServerResponse, { Body: AddAboutUsValidationType, Reply: IReplyType }> = {
         method: 'POST',
         url: '/',
         schema: {
           body: AddAboutUsValidation,
           response: IReply.$schema,
         },
-        handler: (request, reply) => { }
+        handler: (request, reply) => this.service.updateAboutUs(request, reply)
       }
 
+      /**
+       * Delete about us section route
+       */
       const deleteAboutUsRoute: RouteOptions<Server, IncomingMessage, ServerResponse, { Reply: IReplyType }> = {
         method: 'DELETE',
-        url: '/:id',
+        url: '/',
         schema: {
           response: IReply.$schema,
         },
-        handler: (request, reply) => { }
+        handler: (request, reply) => this.service.deleteAboutUs(request, reply)
       }
 
+      /**
+       * Get about us section route
+       */
       const getAboutUs: RouteOptions<Server, IncomingMessage, ServerResponse, { Params: RequestQueryValidationType, Reply: IReplyType }> = {
         method: 'GET',
-        url: '/:id',
-        handler: (request, reply) => { }
+        url: '/',
+        handler: (request, reply) => this.service.getAboutUs(request, reply)
       }
 
       /******************************************* Register Routes *******************************************/
       this.server.register(function (app, _, done) {
-        app.route(addAboutUsRoute)
+        app.route(updateAboutUsRoute)
         app.route(deleteAboutUsRoute)
         app.route(getAboutUs);
 

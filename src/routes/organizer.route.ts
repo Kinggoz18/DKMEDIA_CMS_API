@@ -6,7 +6,7 @@ import { IReply, IReplyType } from "../interfaces/IReply";
 import { RequestQueryValidation, RequestQueryValidationType } from "../types/RequestQuery.type";
 import { OrganizerService } from "../services/organizer.service";
 import { OrganizerDocument } from "../schema/organizer";
-import { OrganizerValidationSchema, OrganizerValidationType } from "../types/organizer.type";
+import { AddOrganizerValidationType, OrganizerValidationSchema, UpdateOrganizerValidationType } from "../types/organizer.type";
 
 export class OrganizerRoute implements IRoute<OrganizerDocument> {
   service: OrganizerService;
@@ -43,7 +43,10 @@ export class OrganizerRoute implements IRoute<OrganizerDocument> {
   initRoutes() {
     try {
       /******************************************* Route Declarations *******************************************/
-      const addOrganizerRoute: RouteOptions<Server, IncomingMessage, ServerResponse, { Body: OrganizerValidationType, Reply: IReplyType }> = {
+      /**
+       * Add an organizer route
+       */
+      const addOrganizerRoute: RouteOptions<Server, IncomingMessage, ServerResponse, { Body: AddOrganizerValidationType, Reply: IReplyType }> = {
         method: 'POST',
         url: '/',
         schema: {
@@ -53,6 +56,9 @@ export class OrganizerRoute implements IRoute<OrganizerDocument> {
         handler: (request, reply) => this.service.addOrganizer(request, reply)
       }
 
+      /**
+      * Delete an organizer route
+      */
       const deleteOrganizerRoute: RouteOptions<Server, IncomingMessage, ServerResponse, { Params: RequestQueryValidationType, Reply: IReplyType }> = {
         method: 'DELETE',
         url: '/:id',
@@ -63,19 +69,28 @@ export class OrganizerRoute implements IRoute<OrganizerDocument> {
         handler: (request, reply) => this.service.deleteOrganizer(request, reply)
       }
 
+      /**
+      * Get all organizer route
+      */
       const getAllOrganizersRoute: RouteOptions<Server, IncomingMessage, ServerResponse> = {
         method: 'GET',
         url: '/',
         handler: (request, reply) => this.service.getAllOrganizer(request, reply)
       }
 
+      /**
+      * Get an organizer route
+      */
       const getOrganizerByIdRoute: RouteOptions<Server, IncomingMessage, ServerResponse, { Params: RequestQueryValidationType, Reply: IReplyType }> = {
         method: 'GET',
         url: '/:id',
         handler: (request, reply) => this.service.getOrganizerById(request, reply)
       }
 
-      const updateOrganizerByIdRoute: RouteOptions<Server, IncomingMessage, ServerResponse, { Body: OrganizerValidationType, Reply: IReplyType }> = {
+      /**
+      * Update an organizer route
+      */
+      const updateOrganizerByIdRoute: RouteOptions<Server, IncomingMessage, ServerResponse, { Body: UpdateOrganizerValidationType, Reply: IReplyType }> = {
         method: 'PUT',
         url: '/',
         schema: {

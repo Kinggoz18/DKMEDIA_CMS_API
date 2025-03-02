@@ -4,7 +4,7 @@ import { mongodb } from "@fastify/mongodb";
 import { IncomingMessage, Server, ServerResponse } from "http";
 import { IReply, IReplyType } from "../interfaces/IReply";
 import { RequestQueryValidation, RequestQueryValidationType } from "../types/RequestQuery.type";
-import { SubscriptionValidation, SubscriptionValidationType } from "../types/subscription.type";
+import { SubscriptionValidationSchema, SubscriptionValidationType } from "../types/subscription.type";
 import { SubscriptionService } from "../services/Subscription.service";
 import { SubscriptionDocument } from "../schema/subscription";
 
@@ -43,16 +43,22 @@ export class SubscriptionRoute implements IRoute<SubscriptionDocument> {
   initRoutes() {
     try {
       /******************************************* Route Declarations *******************************************/
+      /**
+       * Add subscription route
+       */
       const addSubscriptionRoute: RouteOptions<Server, IncomingMessage, ServerResponse, { Body: SubscriptionValidationType, Reply: IReplyType }> = {
         method: 'POST',
         url: '/',
         schema: {
-          body: SubscriptionValidation,
+          body: SubscriptionValidationSchema,
           response: IReply.$schema,
         },
-        handler: (request, reply) => { }
+        handler: (request, reply) => this.service.addSubscription(request, reply)
       }
 
+      /**
+       * Delete subscription route
+       */
       const deleteSubscriptionRoute: RouteOptions<Server, IncomingMessage, ServerResponse, { Params: RequestQueryValidationType, Reply: IReplyType }> = {
         method: 'DELETE',
         url: '/:id',
@@ -60,19 +66,25 @@ export class SubscriptionRoute implements IRoute<SubscriptionDocument> {
           params: RequestQueryValidation,
           response: IReply.$schema,
         },
-        handler: (request, reply) => { }
+        handler: (request, reply) => this.service.deleteSubscription(request, reply)
       }
 
+      /**
+       * Get all subscription route
+       */
       const getAllSubscriptionRoute: RouteOptions<Server, IncomingMessage, ServerResponse> = {
         method: 'GET',
         url: '/',
-        handler: (request, reply) => { }
+        handler: (request, reply) => this.service.getAllSubscription(request, reply)
       }
 
+      /**
+      * Get subscription route
+      */
       const getSubscriptionByIdRoute: RouteOptions<Server, IncomingMessage, ServerResponse, { Params: RequestQueryValidationType, Reply: IReplyType }> = {
         method: 'GET',
         url: '/:id',
-        handler: (request, reply) => { }
+        handler: (request, reply) => this.service.getSubscription(request, reply)
       }
 
       /******************************************* Register Routes *******************************************/
@@ -81,7 +93,7 @@ export class SubscriptionRoute implements IRoute<SubscriptionDocument> {
         app.route(deleteSubscriptionRoute)
         app.route(getAllSubscriptionRoute)
         app.route(getSubscriptionByIdRoute)
-        
+
         done()
       }, { prefix: this.basePath })
     } catch (error) {
