@@ -20,7 +20,7 @@ export const initAppRoutes = (server: FastifyInstance, database: mongodb.Db, don
     const organizerRoute: OrganizerRoute = new OrganizerRoute(server, database, server.log);
     const uploadedMediaRoute: UploadMediaRoute = new UploadMediaRoute(server, database, server.log);
     const contactRoute: ContactRoute = new ContactRoute(server, database, server.log);
-
+    //TODO: Add Article route
   
     /***************************************************** Initialize Routes *****************************************************/
     authRoute.initRoutes();

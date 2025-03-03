@@ -53,7 +53,6 @@ export class UserRoute implements IRoute<UserDocument> {
   initRoutes() {
     try {
       /******************************************* Route Declarations *******************************************/
-      //TODO: Create schemas for all these and complete the service logic if needed
       const getUserRoute: RouteOptions<Server, IncomingMessage, ServerResponse, { Params: RequestQueryValidationType; Reply: IReplyType }> = {
         method: 'GET',
         url: `/:id`,
