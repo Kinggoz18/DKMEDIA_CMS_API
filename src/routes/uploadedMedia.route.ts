@@ -40,7 +40,7 @@ export class UploadMediaRoute implements IRoute<UploadedMediaDocument> {
     }
   }
 
-  initRoutes() {
+  async initRoutes() {
     try {
       /******************************************* Route Declarations *******************************************/
       /**
@@ -88,7 +88,7 @@ export class UploadMediaRoute implements IRoute<UploadedMediaDocument> {
       }
 
       /******************************************* Register Routes *******************************************/
-      this.server.register(function (app, _, done) {
+      await this.server.register(function (app, _, done) {
         app.route(addMedia)
         app.route(deleteMedia)
         app.route(getAllMediaRoute)

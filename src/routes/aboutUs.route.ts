@@ -40,7 +40,7 @@ export class AboutUsRoute implements IRoute<AboutUsDocument> {
     }
   }
 
-  initRoutes() {
+  async initRoutes() {
     try {
       /******************************************* Route Declarations *******************************************/
       /**
@@ -78,7 +78,7 @@ export class AboutUsRoute implements IRoute<AboutUsDocument> {
       }
 
       /******************************************* Register Routes *******************************************/
-      this.server.register(function (app, _, done) {
+      await this.server.register(function (app, _, done) {
         app.route(updateAboutUsRoute)
         app.route(deleteAboutUsRoute)
         app.route(getAboutUs);

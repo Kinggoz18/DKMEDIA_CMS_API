@@ -3,14 +3,14 @@ import { ObjectId } from "@fastify/mongodb";
 
 export interface UserDocument extends Document {
   _id: ObjectId,
-  firstName: string;
-  lastName: string;
+  authId: string;
+  displayName: string;
   email: string;
 }
 
 export const UserMongooseSchema = new Schema<UserDocument>({
-  firstName: { type: String },
-  lastName: { type: String },
+  authId: { type: String },
+  displayName: { type: String },
   email: { type: String },
 })
 

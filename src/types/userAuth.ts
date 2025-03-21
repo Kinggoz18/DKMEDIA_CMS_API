@@ -34,12 +34,9 @@ export const UserAuth = Type.Object({
 })
 
 export const AuthCallbackValidationSchema = Type.Object({
-  _id: Type.Unknown(),
-  firstName: Type.String(),
-  lastName: Type.String(),
-  email: Type.String({ format: 'email' }),
-}, {
+  userId: Type.String(),
   mode: Type.String(),
+  erroMessage: Type.Optional(Type.String())
 })
 
 export type UserAuthType = Static<typeof UserAuth>;

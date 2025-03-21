@@ -4,6 +4,7 @@ import { ObjectId } from "@fastify/mongodb";
 export interface ContactUsDocument extends Document {
   _id: ObjectId,
   firstName: string;
+  subject: string;
   lastName: string;
   company: string;
   email: string;
@@ -14,6 +15,7 @@ export interface ContactUsDocument extends Document {
 export const ContactUsMongooseSchema = new Schema<ContactUsDocument>({
   firstName: { type: String },
   lastName: { type: String },
+  subject: { type: String },
   company: { type: String },
   email: { type: String },
   phone: { type: String },

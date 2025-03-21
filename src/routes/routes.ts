@@ -8,9 +8,10 @@ import { SubscriptionRoute } from "./subscription.route";
 import { ContactUsRoute } from "./contactUs.route";
 import { AboutUsRoute } from "./aboutUs.route";
 import { ContactRoute } from "./contact.route";
+import { ArticleRoute } from "./ArticleRoute";
 
 
-export const initAppRoutes = (server: FastifyInstance, database: mongodb.Db, done: any) => {
+export const initAppRoutes = async (server: FastifyInstance, database: mongodb.Db, done: any) => {
   try {
     const authRoute: UserRoute = new UserRoute(server, database, server.log);
     const eventRoute: EventRoute = new EventRoute(server, database, server.log);
@@ -20,18 +21,19 @@ export const initAppRoutes = (server: FastifyInstance, database: mongodb.Db, don
     const organizerRoute: OrganizerRoute = new OrganizerRoute(server, database, server.log);
     const uploadedMediaRoute: UploadMediaRoute = new UploadMediaRoute(server, database, server.log);
     const contactRoute: ContactRoute = new ContactRoute(server, database, server.log);
-    //TODO: Add Article route
-  
+    const articleRoute: ArticleRoute = new ArticleRoute(server, database, server.log);
+
     /***************************************************** Initialize Routes *****************************************************/
-    authRoute.initRoutes();
-    eventRoute.initRoutes();
-    aboutUsRoute.initRoutes();
-    contactUsRoute.initRoutes();
-    subscriptionRoute.initRoutes();
-    organizerRoute.initRoutes();
-    uploadedMediaRoute.initRoutes();
-    contactRoute.initRoutes();
-    
+    await authRoute.initRoutes();
+    await eventRoute.initRoutes();
+    await aboutUsRoute.initRoutes();
+    await contactUsRoute.initRoutes();
+    await subscriptionRoute.initRoutes();
+    await organizerRoute.initRoutes();
+    await uploadedMediaRoute.initRoutes();
+    await contactRoute.initRoutes();
+    await articleRoute.initRoutes();
+
     done()
   } catch (error: any) {
     throw new Error(error.message)

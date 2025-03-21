@@ -3,6 +3,7 @@ import { Static, Type } from "@sinclair/typebox";
 export const AddContactUsValidationSchema = Type.Object({
   firstName: Type.String(),
   lastName: Type.String(),
+  subject: Type.String(),
   company: Type.Optional(Type.String()),
   email: Type.String({ format: 'email' }),
   phone: Type.String(),
@@ -13,6 +14,7 @@ export const ContactUsValidationSchema = Type.Object({
   _id: Type.Unknown(),
   firstName: Type.String(),
   lastName: Type.String(),
+  subject: Type.String(),
   company: Type.Optional(Type.String()),
   email: Type.String({ format: 'email' }),
   phone: Type.String(),

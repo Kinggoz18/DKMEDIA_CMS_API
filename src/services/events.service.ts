@@ -74,14 +74,17 @@ export class EventService implements IService<EventDocument> {
   deleteEvent = async (request: FastifyRequest<{ Params: RequestQueryValidationType }>, reply: FastifyReply<{ Reply: IReplyType }>) => {
     try {
       const { id } = request.params;
+      console.log({ id })
       //Check if the event exists
       const eventExists = await this.dbCollection.findOne({ _id: new ObjectId(id) })
       if (!eventExists?._id) throw new ReplyError("Event does not exists", 404);
 
+      console.log({ eventExists })
       //Delete the event
       const deleteResult = await this.dbCollection.deleteOne({ _id: new ObjectId(id) });
       if (!deleteResult.acknowledged) throw new ReplyError("Failed to delete devent", 400);
 
+      console.log({ deleteResult })
       return reply.code(200).send({ success: deleteResult.acknowledged, data: "event deleted" })
     } catch (error: any) {
       if (error instanceof ReplyError)

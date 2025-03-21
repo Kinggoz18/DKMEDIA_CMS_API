@@ -40,7 +40,7 @@ export class SubscriptionRoute implements IRoute<SubscriptionDocument> {
     }
   }
 
-  initRoutes() {
+  async initRoutes() {
     try {
       /******************************************* Route Declarations *******************************************/
       /**
@@ -88,7 +88,7 @@ export class SubscriptionRoute implements IRoute<SubscriptionDocument> {
       }
 
       /******************************************* Register Routes *******************************************/
-      this.server.register(function (app, _, done) {
+      await this.server.register(function (app, _, done) {
         app.route(addSubscriptionRoute)
         app.route(deleteSubscriptionRoute)
         app.route(getAllSubscriptionRoute)

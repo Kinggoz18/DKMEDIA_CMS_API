@@ -16,5 +16,5 @@ export const ArticleValidationSchema = Type.Object({
   link: Type.String(),
 })
 
-export type AboutUsValidationType = Static<typeof ArticleValidationSchema>
-export type AddAboutUsValidationType = Static<typeof AddArticleValidationSchema>
+export type ArticleValidationType = Static<typeof ArticleValidationSchema>
+export type AddArticleValidationType = Static<typeof AddArticleValidationSchema>

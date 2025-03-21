@@ -40,7 +40,7 @@ export class EventRoute implements IRoute<EventDocument> {
     }
   }
 
-  initRoutes() {
+  async initRoutes() {
     try {
       /******************************************* Route Declarations *******************************************/
 
@@ -102,7 +102,7 @@ export class EventRoute implements IRoute<EventDocument> {
       }
 
       /******************************************* Register Routes *******************************************/
-      this.server.register(function (app, _, done) {
+      await this.server.register(function (app, _, done) {
         app.route(addEventRoute)
         app.route(deleteEventRoute)
         app.route(getEventByIdRoute)

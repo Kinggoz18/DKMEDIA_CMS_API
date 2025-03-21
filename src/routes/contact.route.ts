@@ -40,7 +40,7 @@ export class ContactRoute implements IRoute<ContactDocument> {
     }
   }
 
-  initRoutes() {
+  async initRoutes() {
     try {
       /******************************************* Route Declarations *******************************************/
       const addContactRoute: RouteOptions<Server, IncomingMessage, ServerResponse, { Body: UpdateContactValidationType, Reply: IReplyType }> = {
@@ -70,7 +70,7 @@ export class ContactRoute implements IRoute<ContactDocument> {
 
 
       /******************************************* Register Routes *******************************************/
-      this.server.register(function (app, _, done) {
+      await this.server.register(function (app, _, done) {
         app.route(addContactRoute)
         app.route(deleteContactRoute)
         app.route(getAllContactRoute)

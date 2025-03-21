@@ -32,6 +32,7 @@ export class ContactUsService implements IService<ContactUsDocument> {
       const {
         company,
         firstName,
+        subject,
         lastName,
         email,
         phone,
@@ -43,6 +44,7 @@ export class ContactUsService implements IService<ContactUsDocument> {
         company,
         firstName,
         lastName,
+        subject,
         email,
         phone,
         message,

@@ -1,19 +1,25 @@
 import fastify, { FastifyInstance } from 'fastify'
 import { mongodb } from '@fastify/mongodb';
-import dotenv from 'dotenv';
 import fastifyMongodb from '@fastify/mongodb';
-import path from 'node:path';
 import { initAppRoutes } from './routes/routes';
+import fastifySecureSession from '@fastify/secure-session'
+import cors from '@fastify/cors'
+import fs from 'fs';
+
+import dotenv from 'dotenv';
+import path from 'node:path';
+import { PassportConfig } from './config/passport';
 
 dotenv.config();
 const server: FastifyInstance = fastify({ logger: true });
 const MONGODB_URL = process.env.MONGODB_URL ?? "";
 const BASE_PATH = process.env.BASE_PATH ?? "";
 const DATABASE_NAME = process.env.DATABASE_NAME ?? "";
+const FRONTEND_URL = process.env.FRONTEND_URL ?? "";
 
 // ****************************************************** END OF TESTS ****************************************************** //
 
- const connectToDatabase = async () => {
+const connectToDatabase = async () => {
   try {
     if (MONGODB_URL === "" || !MONGODB_URL) throw new Error("MongoDb URL is undefined");
 
@@ -41,6 +47,20 @@ export const startServer = async (server: FastifyInstance) => {
     const database = server.mongo.client.db(DATABASE_NAME);
     if (!database) throw new Error("Failed to load database");
 
+    //Set up cors
+    await server.register(cors, {
+      origin: [FRONTEND_URL,],
+      methods: ['GET', 'POST', 'DELETE', 'PU'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'X-Requested-With', 'Accept'],
+    })
+
+    //Set up secure session 
+    // set up secure sessions for @fastify/passport to store data in
+    server.register(fastifySecureSession, { key: fs.readFileSync(path.join(__dirname, 'secret-key')) })
+
+    //Set up passport
+    PassportConfig(server, database)
+
     // Register routes
     await server.register((app, _, done) => initAppRoutes(app, database, done), {
       root: path.join(__dirname, 'public'),
@@ -49,20 +69,21 @@ export const startServer = async (server: FastifyInstance) => {
 
     return server;
   } catch (error: any) {
+    console.log({ error })
     throw new Error(error.message)
   }
 }
 
 connectToDatabase() //Start the database
-.then((server) => startServer(server))  //Prepare the server
-.then((server) => { //Start listening
-  server.listen({ port: 4000 }, (err, address) => {
-    if (err) {
-      console.log(err)
-      process.exit(1);
-    }
-    console.log(`Server listening at ${address}`)
-  })
-});
+  .then((server) => startServer(server))  //Prepare the server
+  .then((server) => { //Start listening
+    server.listen({ port: 4000 }, (err, address) => {
+      if (err) {
+        console.log(err)
+        process.exit(1);
+      }
+      console.log(`Server listening at ${address}`)
+    })
+  });
 
 

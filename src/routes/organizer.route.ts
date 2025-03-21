@@ -40,7 +40,7 @@ export class OrganizerRoute implements IRoute<OrganizerDocument> {
     }
   }
 
-  initRoutes() {
+  async initRoutes() {
     try {
       /******************************************* Route Declarations *******************************************/
       /**
@@ -101,7 +101,7 @@ export class OrganizerRoute implements IRoute<OrganizerDocument> {
       }
 
       /******************************************* Register Routes *******************************************/
-      this.server.register(function (app, _, done) {
+      await this.server.register(function (app, _, done) {
         app.route(addOrganizerRoute)
         app.route(deleteOrganizerRoute)
         app.route(getOrganizerByIdRoute)
