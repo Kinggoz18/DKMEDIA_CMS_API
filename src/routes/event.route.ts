@@ -101,6 +101,18 @@ export class EventRoute implements IRoute<EventDocument> {
         handler: (request, reply) => this.service.updateEventById(request, reply)
       }
 
+      const uploadCloudinaryImageRoute: RouteOptions<Server, IncomingMessage, ServerResponse, { Body: AddEventValidationType }> = {
+        method: 'POST',
+        url: '/cloudinary/image',
+        handler: (request, reply) => this.service.uploadCloudinaryImage(request, reply)
+      }
+
+      const uploadCloudinaryVideoRoute: RouteOptions<Server, IncomingMessage, ServerResponse, { Body: AddEventValidationType }> = {
+        method: 'POST',
+        url: '/cloudinary/video',
+        handler: (request, reply) => this.service.uploadCloudinaryVideo(request, reply)
+      }
+
       /******************************************* Register Routes *******************************************/
       await this.server.register(function (app, _, done) {
         app.route(addEventRoute)
@@ -108,6 +120,8 @@ export class EventRoute implements IRoute<EventDocument> {
         app.route(getEventByIdRoute)
         app.route(getAllEventsRoute)
         app.route(updateEventByIdRoute)
+        app.route(uploadCloudinaryImageRoute)
+        app.route(uploadCloudinaryVideoRoute)
 
         done()
       }, { prefix: this.basePath })

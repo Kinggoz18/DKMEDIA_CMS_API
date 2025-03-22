@@ -32,8 +32,8 @@ test("Should POST to /contact route", async t => {
     path: baseUrl,
     body: JSON.stringify({
       email: "csasesa8@gmail.com",
-      instagramLink: "testLink",
-      tiktokLink: "testLink",
+      instagramLink: "https://www.instagram.com/dkmediahg/",
+      tiktokLink: "https://www.tiktok.com/@dkmediahg",
     }),
     headers: {
       "Content-Type": "application/json"

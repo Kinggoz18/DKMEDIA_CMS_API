@@ -6,11 +6,18 @@ import { AddEventValidationType, UpdateEventValidationType } from "../types/even
 import { mongodb, ObjectId } from "@fastify/mongodb";
 import { ReplyError } from "../interfaces/ReplyError";
 import { RequestQueryValidationType } from "../types/RequestQuery.type";
+import { v2 as cloudinary, UploadApiResponse } from 'cloudinary'
+import dotenv from 'dotenv';
+import { pipeline } from "stream/promises";
 
+dotenv.config();
 export class EventService implements IService<EventDocument> {
   dbModel = EventModel;
   dbCollection: mongodb.Collection<EventDocument>;
   logger: FastifyBaseLogger;
+  cloudName = process.env.CLOUDINARY_NAME
+  cloudSecrete = process.env.CLOUDINARY_SECRETE
+  cloudKey = process.env.CLOUDINARY_KEY
 
   constructor(dbCollection: mongodb.Collection<EventDocument>, logger: FastifyBaseLogger) {
     this.dbCollection = dbCollection;
@@ -20,10 +27,30 @@ export class EventService implements IService<EventDocument> {
       logger.error("Failed to load event collection")
       return;
     }
+
+    if (!this.cloudName) {
+      throw new Error("Cloudinary cloud name evn is missing");
+    }
+
+    if (!this.cloudSecrete) {
+      throw new Error("Cloudinary cloud secrete evn is missing");
+    }
+
+    if (!this.cloudKey) {
+      throw new Error("Cloudinary cloud key evn is missing");
+    }
+
+    //Configure cloudinary
+    cloudinary.config({
+      cloud_name: this.cloudName,
+      api_key: this.cloudKey,
+      api_secret: this.cloudSecrete
+    });
   }
 
   /**
    * Post an event to the database
+   * TODO: Add a check limit for 3 Hightlights before creating a new event ones
    * @param request 
    * @param reply 
    * @returns 
@@ -180,4 +207,85 @@ export class EventService implements IService<EventDocument> {
       else return reply.status(500).send({ success: false, data: "Sorry, something went wrong" })
     }
   }
+
+
+  /**
+ * Handle uploads for images
+ */
+  uploadCloudinaryImage = async (request: FastifyRequest, reply: FastifyReply) => {
+    const data = await request.file();
+    if (!data) {
+      return reply.code(400).send({ success: false, data: 'No file uploaded' });
+    }
+
+    try {
+      // Create a Cloudinary upload stream wrapped in a Promise
+      const result: UploadApiResponse = await new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          { resource_type: 'image', folder: "DKMedia_Test_image" },
+          (error, result) => {
+            if (error) return reject(error);
+            if (!result) return reject("Something went wrong, while uploading video to cloudinary");
+            resolve(result);
+          }
+        );
+
+        // Pipe file stream directly to Cloudinary's upload stream
+        data.file.pipe(uploadStream);
+
+        // Handle errors in file stream
+        data.file.on('error', (err) => {
+          reject(err);
+        });
+
+        uploadStream.on('error', (err) => {
+          reject(err);
+        });
+      });
+
+      return reply.code(200).send({ success: true, data: result?.secure_url });
+    } catch (error: any) {
+      console.error('Cloudinary Image Upload Error:', error);
+      return reply.status(500).send({ success: false, data: "Cloudinary image upload failed" })
+    }
+  }
+
+  /**
+   * Handle uploads for videos
+   */
+  uploadCloudinaryVideo = async (request: FastifyRequest, reply: FastifyReply) => {
+    const data = await request.file();
+    if (!data) {
+      return reply.code(400).send({ success: false, data: 'No file uploaded' });
+    }
+
+    try {
+      const result: UploadApiResponse = await new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          {
+            resource_type: 'video',
+            folder: "DKMedia_Test_video",
+            transformation: [
+              { format: "mp4" }  // Convert to MP4
+            ]
+          },
+          (error, result) => {
+            if (error) return reject(error);
+            if (!result) return reject("Something went wrong, while uploading video to cloudinary");
+            resolve(result);
+          }
+        );
+
+        pipeline(data.file, uploadStream).then(() => {
+          uploadStream.end()
+        }).catch(reject);
+      });
+
+      return reply.code(200).send({ success: true, data: result?.secure_url });
+    } catch (error: any) {
+      console.error('Cloudinary video Upload Error:', error);
+      return reply.status(500).send({ success: false, data: "Cloudinary video upload failed" })
+    }
+  }
+
 }

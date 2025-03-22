@@ -33,6 +33,7 @@ test("Should POST to /contact-us", async t => {
     body: JSON.stringify({
       firstName: "Chigozie",
       lastName: "Muonagolu",
+      subject: "Potential colaboration.",
       company: "",
       email: "cmuonagolu18@gmail.com",
       phone: "6472251047",

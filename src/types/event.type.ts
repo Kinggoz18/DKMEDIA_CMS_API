@@ -4,7 +4,7 @@ import { OrganizerValidationSchema } from "./organizer.type";
 
 export const AddEventValidationSchema = Type.Object({
   title: Type.String(),
-  date: Type.String({ format: 'date' }),
+  date: Type.String(),
   image: Type.String({ format: 'uri' }),
   priority: Type.Enum(EventPriority),
   organizer: OrganizerValidationSchema
@@ -13,7 +13,7 @@ export const AddEventValidationSchema = Type.Object({
 export const UpdateEventValidationSchema = Type.Object({
   id: Type.String(),
   title: Type.Optional(Type.String()),
-  date: Type.Optional(Type.String({ format: 'date' }),),
+  date: Type.Optional(Type.String(),),
   image: Type.Optional(Type.String({ format: 'uri' })),
   priority: Type.Optional(Type.Enum(EventPriority)),
   organizer: Type.Optional(OrganizerValidationSchema)
@@ -22,7 +22,7 @@ export const UpdateEventValidationSchema = Type.Object({
 export const EventValidationSchema = Type.Object({
   _id: Type.Unknown(),
   title: Type.String(),
-  date: Type.String({ format: 'date' }),
+  date: Type.String(),
   image: Type.String({ format: 'uri' }),
   priority: Type.Enum(EventPriority),
   organizer: OrganizerValidationSchema
