@@ -1,11 +1,10 @@
-import bcrypt from "bcryptjs";
 import dotenv from 'dotenv'
 import { FastifyInstance, FastifyRequest } from "fastify";
 import fastifyPassport from '@fastify/passport';
 import { Profile, VerifyCallback } from "passport-google-oauth20";
-import { UserDocument, UserModel } from "../schema/user";
-import { mongodb } from "@fastify/mongodb";
-import { AuthRequestQueryValidationType, PassportRequestQueryValidationType } from "../types/AuthRequestQuery.type";
+import { AuthSessionDocument, UserDocument, UserModel } from "../schema/user";
+import { mongodb, ObjectId } from "@fastify/mongodb";
+import { PassportRequestQueryValidationType } from "../types/AuthRequestQuery.type";
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 
 dotenv.config();
@@ -18,8 +17,9 @@ const PassportConfig = (sevrer: FastifyInstance, database: mongodb.Db) => {
   const googleClientId = process.env.GOOGLE_CLIENT_ID;
   const googleSecret = process.env.GOOGLE_CLIENT_SECRET;
   const googleRegisterCallbackUrl = process.env.GOOGLE_CALLBACK_URL;
+
   const authCollection = database.collection<UserDocument>('auth')
-  console.log({ googleRegisterCallbackUrl });
+  const authSessionCollection = database.collection<AuthSessionDocument>('authSession')
 
   //Passport google
   fastifyPassport.use(
@@ -36,13 +36,13 @@ const PassportConfig = (sevrer: FastifyInstance, database: mongodb.Db) => {
 
         try {
           const state = request.query.state ? JSON.parse(request.query.state) : {};
-          const { mode, } = state;
+          const { mode, id } = state;
 
           const searchUser = await authCollection.findOne({
             authId: profile.id,
           });
 
-          console.log({ mode, profile });
+          console.log({ mode, id, profile });
           // Handle login scenario
           if (mode === "login") {
             // The user does not exist
@@ -63,6 +63,25 @@ const PassportConfig = (sevrer: FastifyInstance, database: mongodb.Db) => {
               return cb(null, { userId: false, mode, erroMessage: "Google account already registered" });
             }
 
+            if (!id) {
+              console.log("Auth session not found");
+              return cb(null, { userId: false, mode, erroMessage: "Auth session not found" });
+            }
+
+            const userId = decodeURIComponent(id);
+            const authSession = await authSessionCollection.findOne({ _id: new ObjectId(userId) })
+
+            if (!authSession || !authSession?._id) {
+              console.log("Auth session not found");
+              return cb(null, { userId: false, mode, erroMessage: "Auth session not found" });
+            }
+            const currentDate = new Date();
+            //If the session has not expired
+            if (authSession?.expires < currentDate) {
+              console.log("Session expired. Please signup again");
+              return cb(null, { userId: false, mode, erroMessage: "Session expired. Please signup again" });
+            }
+
             //Create the new user
             const newUser = new UserModel({
               authId: profile?.id,
@@ -70,10 +89,12 @@ const PassportConfig = (sevrer: FastifyInstance, database: mongodb.Db) => {
               email: profile.emails ? profile.emails[0].value : "",
             })
 
+            //Delete the auth session 
+            await authSessionCollection.deleteOne({ _id: new ObjectId(userId) });
             await newUser.validate();
 
             authCollection.insertOne(newUser)
-            return cb(null, { userId: newUser?.id, mode });
+            return cb(null, { userId: newUser?.authId, mode });
           }
 
           return cb(

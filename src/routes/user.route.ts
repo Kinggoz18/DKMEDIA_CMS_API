@@ -1,17 +1,17 @@
 import { mongodb } from "@fastify/mongodb";
-import { FastifyBaseLogger, FastifyInstance, FastifyRequest, RouteOptions } from "fastify";
+import { FastifyBaseLogger, FastifyInstance, RouteOptions } from "fastify";
 import { UserService } from "../services/user.service";
 import { IncomingMessage, Server, ServerResponse } from "http";
 import { IReply, IReplyType } from "../interfaces/IReply";
-import { UserDocument } from "../schema/user";
+import { AuthSessionDocument, UserDocument } from "../schema/user";
 import IRoute from "../interfaces/IRoute";
 import { RequestQueryValidation, RequestQueryValidationType } from "../types/RequestQuery.type";
-import { AuthRequestQueryValidation, AuthRequestQueryValidationType } from "../types/AuthRequestQuery.type";
+import { AuthRequestQueryValidationType } from "../types/AuthRequestQuery.type";
 import fastifyPassport from '@fastify/passport';
+import crypto from 'crypto';
 
 /**
  * Auth route class. Used to create and register auth routes
- * TODO: Complete user route
  */
 export class UserRoute implements IRoute<UserDocument> {
   service: UserService;
@@ -30,7 +30,8 @@ export class UserRoute implements IRoute<UserDocument> {
     this.server = server;
     this.logger = logger;
     this.collection = database.collection<UserDocument>('auth');
-    this.service = new UserService(this.collection, logger);
+    const authSessionCollection = database.collection<AuthSessionDocument>('authSession');
+    this.service = new UserService(this.collection, logger, authSessionCollection);
 
     if (!this.server) {
       console.log("Error: Failed to load server")
@@ -67,28 +68,55 @@ export class UserRoute implements IRoute<UserDocument> {
       const loginUserRoute: RouteOptions<Server, IncomingMessage, ServerResponse, { Querystring: AuthRequestQueryValidationType }> = {
         method: 'GET',
         url: `/google/callback`,
+        config: {
+          rateLimit: {
+            max: 5, //5 login attempts
+            timeWindow: 5 * 1000 * 60 //5 minutes 
+          }
+        },
         preValidation: (request, reply) => {
-          return fastifyPassport.authenticate("google", {
-            scope: [
-              "https://www.googleapis.com/auth/userinfo.profile",
-              "https://www.googleapis.com/auth/userinfo.email",
-            ],
-            state: JSON.stringify({ mode: request.query.mode }),
-          }).call(this.server, request, reply); // Use `.call(fastify, request, reply)` to ensure the correct context
+          const { id, mode } = request.query;
+
+          if (mode === "signup" && id) {
+            // Encrypt the signupCode before sending it in the state
+            return fastifyPassport.authenticate("google", {
+              scope: [
+                "https://www.googleapis.com/auth/userinfo.profile",
+                "https://www.googleapis.com/auth/userinfo.email",
+              ],
+              state: JSON.stringify({ mode: request.query.mode, id: request.query.id }),
+            }).call(this.server, request, reply); // Use `.call(fastify, request, reply)` to ensure the correct context
+          } else {
+            return fastifyPassport.authenticate("google", {
+              scope: [
+                "https://www.googleapis.com/auth/userinfo.profile",
+                "https://www.googleapis.com/auth/userinfo.email",
+              ],
+              state: JSON.stringify({ mode: request.query.mode }),
+            }).call(this.server, request, reply); // Use `.call(fastify, request, reply)` to ensure the correct context
+          }
+
+
         },
         handler: (request, reply) => this.service.googleAuthHandler(request, reply)
       }
-
-      // const registerUserRoute: RouteOptions<Server, IncomingMessage, ServerResponse> = {
-      //   method: 'POST',
-      //   url: '/google/callback',
-      //   handler: (request, reply) => this.service.googleAuthHandlerCallback(request, reply)
-      // }
 
       const deleteUserRoute: RouteOptions<Server, IncomingMessage, ServerResponse> = {
         method: 'DELETE',
         url: '/',
         handler: (request, reply) => this.service.deleteUser(request, reply)
+      }
+
+      const authenticateSignupCodeRoute: RouteOptions<Server, IncomingMessage, ServerResponse, { Body: { code: string }; Reply: IReplyType }> = {
+        method: 'POST',
+        config: {
+          rateLimit: {
+            max: 5, //5 login attempts
+            timeWindow: 5 * 1000 * 60 //5 minutes 
+          }
+        },
+        url: `/authenticate-code`,
+        handler: (request, reply) => this.service.authenticateSignupCode(request, reply)
       }
 
       /******************************************* Register Routes *******************************************/
@@ -97,6 +125,7 @@ export class UserRoute implements IRoute<UserDocument> {
         app.route(loginUserRoute)
         app.route(getUserRoute)
         app.route(deleteUserRoute)
+        app.route(authenticateSignupCodeRoute)
         done()
       }, { prefix: this.basePath })
 

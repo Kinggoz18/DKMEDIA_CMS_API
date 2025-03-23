@@ -1,24 +1,28 @@
-import { mongodb, ObjectId } from "@fastify/mongodb";
+import { mongodb } from "@fastify/mongodb";
 import { FastifyBaseLogger, FastifyReply, FastifyRequest } from "fastify";
 import { IReplyType } from "../interfaces/IReply";
 import IService from "../interfaces/IService";
-import { UserDocument, UserModel } from "../schema/user";
+import { AuthSession, AuthSessionDocument, AuthSessionModel, UserDocument, UserModel } from "../schema/user";
 import { RequestQueryValidationType } from "../types/RequestQuery.type";
-import { AuthRequestQueryValidationType, PassportRequestQueryValidationType } from "../types/AuthRequestQuery.type";
 import dotenv from 'dotenv';
 import { AuthCallbackValidationType } from "../types/userAuth";
 import { ReplyError } from "../interfaces/ReplyError";
+import { createHmac } from 'crypto'
+
 dotenv.config();
 const FRONTEND_URL = process.env.FRONTEND_URL ?? "";
+const SIGNUP_SECRET = process.env.SIGNUP_SECRET ?? "";
+const SIGNUP_CODE_HASHED = process.env.SIGNUP_CODE_HASHED ?? "";
 
-//TODO: Complete user service
 export class UserService implements IService<UserDocument> {
   dbModel = UserModel;
   dbCollection: mongodb.Collection<UserDocument>;
   logger: FastifyBaseLogger;
+  private authSessionCollection: mongodb.Collection<AuthSessionDocument>;
 
-  constructor(dbCollection: mongodb.Collection<UserDocument>, logger: FastifyBaseLogger) {
+  constructor(dbCollection: mongodb.Collection<UserDocument>, logger: FastifyBaseLogger, authSessionCollection: mongodb.Collection<AuthSessionDocument>) {
     this.dbCollection = dbCollection;
+    this.authSessionCollection = authSessionCollection;
     this.logger = logger;
 
     if (!dbCollection) throw new Error("Failed to load user collection");
@@ -26,13 +30,13 @@ export class UserService implements IService<UserDocument> {
 
   googleAuthHandler = (request: FastifyRequest, reply: FastifyReply) => {
     try {
-      console.log("googleSignUp");
+      console.log("googleAuth");
       const { userId, mode, erroMessage } = request.user as AuthCallbackValidationType;
       console.log({ userId, mode });
       if (userId) {
-        return reply.redirect(`${FRONTEND_URL}/login?authId=${userId}`);
+        return reply.redirect(`${FRONTEND_URL}/auth?authId=${userId}`);
       } else {
-        return reply.redirect(`${FRONTEND_URL}/login?errorMsg="${erroMessage}"`);
+        return reply.redirect(`${FRONTEND_URL}/auth?errorMsg="${erroMessage}"`);
       }
 
     } catch (error) {
@@ -40,35 +44,6 @@ export class UserService implements IService<UserDocument> {
 
     }
   };
-
-  // googleAuthHandlerCallback = async (request: FastifyRequest, reply: FastifyReply) => {
-  //   console.log("googleSignUpCallback");
-  //   try {
-  //     passport.authenticate("google", async (err: any, user: any, info: any) => {
-  //       const { userData, mode } = user;
-
-  //       if (err) {
-  //         console.error("Error during Google authentication callback", err);
-  //       }
-
-  //       if (!userData) {
-  //         console.error("Error during Google authentication callback", err);
-
-  //         if (mode === "login") {
-  //           reply.code(400).send({ success: false, data: "Failed to login user" })
-  //         } else {
-  //           reply.code(400).send({ success: false, data: "Failed to signup user" })
-  //         }
-  //       }
-
-  //       // Redirect to the frontend on success status
-  //       reply.code(200).send({ success: true, data: userData })
-  //     })(request, reply);
-  //   } catch (error) {
-  //     console.error(error)
-  //     reply.code(200).send({ success: true, data: error })
-  //   }
-  // }
 
   deleteUser = async (request: FastifyRequest, reply: FastifyReply) => {
     return 'delete user route'
@@ -90,5 +65,43 @@ export class UserService implements IService<UserDocument> {
         return reply.status(error.code).send({ success: false, data: error.message });
       else return reply.status(500).send({ success: false, data: "Sorry, something went wrong" })
     }
+  }
+
+  authenticateSignupCode = async (request: FastifyRequest<{ Body: { code: string } }>, reply: FastifyReply<{ Reply: IReplyType }>) => {
+    try {
+      const { code } = request.body;
+      if (!code || SIGNUP_SECRET === "") {
+        throw new ReplyError("Signup code is missing", 400);
+      }
+
+      //Veirfy the code
+      const hashedCode = this.createHash(code, SIGNUP_SECRET);
+      console.log({ hashedCode });
+
+      if (hashedCode != SIGNUP_CODE_HASHED) {
+        throw new ReplyError("Unathorized access", 400);
+      }
+
+      //Create the auth session
+      const currentDate = new Date();  // Get the current date and time
+      const expires = new Date(currentDate.getTime() + 5 * 60 * 1000);  // Add 5 minutes
+
+      const newAuthSession = new AuthSessionModel({
+        expires: expires,
+      });
+
+      await this.authSessionCollection.insertOne(newAuthSession)
+      return reply.code(200).send({ data: newAuthSession._id.toString(), success: true })
+    } catch (error) {
+      if (error instanceof ReplyError)
+        return reply.status(error.code).send({ success: false, data: error.message });
+      else return reply.status(500).send({ success: false, data: "Sorry, something went wrong" })
+    }
+  }
+
+  private createHash(code: string, secretKey: string) {
+    return createHmac("sha256", secretKey)
+      .update(code)
+      .digest("hex");
   }
 }

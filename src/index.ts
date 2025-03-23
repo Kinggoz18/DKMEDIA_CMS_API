@@ -4,6 +4,7 @@ import fastifyMongodb from '@fastify/mongodb';
 import { initAppRoutes } from './routes/routes';
 import fastifySecureSession from '@fastify/secure-session'
 import fastifyMultipart from '@fastify/multipart';
+import fastifyRateLimit from '@fastify/rate-limit';
 
 import cors from '@fastify/cors'
 import fs from 'fs';
@@ -56,12 +57,19 @@ export const startServer = async (server: FastifyInstance) => {
       allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'X-Requested-With', 'Accept'],
     })
 
-    //Set up multipart for form processing
+    //Set up multipart for file processing
     await server.register(fastifyMultipart, {
       limits: {
         fileSize: 90 * 1024 * 1024, // 90MB file size limit
       },
     });
+
+    //Set up rate limiting
+    await server.register(fastifyRateLimit, {
+      global: false,
+      max: 200,
+      timeWindow: 5 * 1000 * 60 //5 minutes 
+    })
 
     //Set up secure session 
     // set up secure sessions for @fastify/passport to store data in
