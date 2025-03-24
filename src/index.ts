@@ -19,6 +19,7 @@ const MONGODB_URL = process.env.MONGODB_URL ?? "";
 const BASE_PATH = process.env.BASE_PATH ?? "";
 const DATABASE_NAME = process.env.DATABASE_NAME ?? "";
 const FRONTEND_URL = process.env.FRONTEND_URL ?? "";
+const CRM_FRONTEND_URL = process.env.CRM_FRONTEND_URL ?? "";
 
 // ****************************************************** END OF TESTS ****************************************************** //
 
@@ -52,8 +53,8 @@ export const startServer = async (server: FastifyInstance) => {
 
     //Set up cors
     await server.register(cors, {
-      origin: [FRONTEND_URL,],
-      methods: ['GET', 'POST', 'DELETE', 'PU'],
+      origin: [FRONTEND_URL, CRM_FRONTEND_URL],
+      methods: ['GET', 'POST', 'DELETE', 'PUT'],
       allowedHeaders: ['Content-Type', 'Authorization', 'Origin', 'X-Requested-With', 'Accept'],
     })
 

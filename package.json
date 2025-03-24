@@ -33,6 +33,7 @@
     "@types/passport-google-oauth20": "^2.0.16",
     "cloudinary": "^2.6.0",
     "dotenv": "^16.4.7",
+    "fastify": "^5.2.1",
     "mongoose": "^8.10.1",
     "nodemon": "^3.1.9",
     "passport-google-oauth20": "^2.0.0",

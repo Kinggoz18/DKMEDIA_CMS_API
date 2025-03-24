@@ -9,6 +9,7 @@ import { RequestQueryValidationType } from "../types/RequestQuery.type";
 import { v2 as cloudinary, UploadApiResponse } from 'cloudinary'
 import dotenv from 'dotenv';
 import { pipeline } from "stream/promises";
+import { EventPriority } from "../Enums/eventPriority";
 
 dotenv.config();
 export class EventService implements IService<EventDocument> {
@@ -50,7 +51,7 @@ export class EventService implements IService<EventDocument> {
 
   /**
    * Post an event to the database
-   * TODO: Add a check limit for 3 Hightlights before creating a new event ones
+   * TODO: Test the maximum highlights logic
    * @param request 
    * @param reply 
    * @returns 
@@ -64,6 +65,18 @@ export class EventService implements IService<EventDocument> {
         priority,
         organizer,
       } = request.body;
+
+      //Check if the maximum highlights has been added
+      if (priority === EventPriority.Highlight) {
+        const currentDateTime = new Date().toISOString().slice(0, 16);
+        const allHighlights = await this.dbCollection.find({
+          priority: EventPriority.Highlight, 
+          date: { $gte: currentDateTime } // Filters events that are in the future
+        }).toArray();
+        if (allHighlights.length >= 4) {
+          throw new ReplyError("Maximum of 4 highlights can be added. Please delete a previous highlight before adding a new one", 400);
+        }
+      }
 
       //MongoDb Validation step
       const newEvent = new this.dbModel({
