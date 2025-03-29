@@ -10,7 +10,7 @@ import { ReplyError } from "../interfaces/ReplyError";
 import { createHmac } from 'crypto'
 
 dotenv.config();
-const FRONTEND_URL = process.env.FRONTEND_URL ?? "";
+const CRM_FRONTEND_URL = process.env.CRM_FRONTEND_URL ?? "";
 const SIGNUP_SECRET = process.env.SIGNUP_SECRET ?? "";
 const SIGNUP_CODE_HASHED = process.env.SIGNUP_CODE_HASHED ?? "";
 
@@ -34,9 +34,9 @@ export class UserService implements IService<UserDocument> {
       const { userId, mode, erroMessage } = request.user as AuthCallbackValidationType;
       console.log({ userId, mode });
       if (userId) {
-        return reply.redirect(`${FRONTEND_URL}/auth?authId=${userId}`);
+        return reply.redirect(`${CRM_FRONTEND_URL}/auth?authId=${userId}`);
       } else {
-        return reply.redirect(`${FRONTEND_URL}/auth?errorMsg="${erroMessage}"`);
+        return reply.redirect(`${CRM_FRONTEND_URL}/auth?errorMsg="${erroMessage}"`);
       }
 
     } catch (error) {

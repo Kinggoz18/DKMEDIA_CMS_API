@@ -70,13 +70,13 @@ export class UserRoute implements IRoute<UserDocument> {
         url: `/google/callback`,
         config: {
           rateLimit: {
-            max: 5, //5 login attempts
+            max: 10, //5 login attempts
             timeWindow: 5 * 1000 * 60 //5 minutes 
           }
         },
         preValidation: (request, reply) => {
           const { id, mode } = request.query;
-
+          request.session.delete(); // Clear session to prevent auto-login
           if (mode === "signup" && id) {
             // Encrypt the signupCode before sending it in the state
             return fastifyPassport.authenticate("google", {
