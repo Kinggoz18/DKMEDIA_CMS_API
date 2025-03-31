@@ -18,7 +18,7 @@ export const ContactUsMongooseSchema = new Schema<ContactUsDocument>({
   subject: { type: String },
   company: { type: String },
   email: { type: String },
-  phone: { type: String },
+  phone: { type: String, default: undefined },
   message: { type: String },
 }, { timestamps: true });
 

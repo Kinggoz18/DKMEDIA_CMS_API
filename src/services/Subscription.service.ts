@@ -45,6 +45,12 @@ export class SubscriptionService implements IService<SubscriptionDocument> {
 
       await newSubscription.validate();
 
+      const isSubscribed = await this.dbCollection.findOne({email: email});
+      if(isSubscribed) {
+        console.log("User is already subscribed to DKMEDIA newsletter");
+        throw new ReplyError("Error: User is already subscribed to DKMEDIA newsletter", 400);
+      }
+
       //Insert the new subscription
       const saveNewSubscription = await this.dbCollection.insertOne(newSubscription);
       const getNewSubscription = await this.dbCollection.findOne({ _id: saveNewSubscription?.insertedId });

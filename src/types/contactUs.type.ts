@@ -6,7 +6,7 @@ export const AddContactUsValidationSchema = Type.Object({
   subject: Type.String(),
   company: Type.Optional(Type.String()),
   email: Type.String({ format: 'email' }),
-  phone: Type.String(),
+  phone: Type.Optional(Type.String()),
   message: Type.String(),
 })
 
@@ -17,7 +17,7 @@ export const ContactUsValidationSchema = Type.Object({
   subject: Type.String(),
   company: Type.Optional(Type.String()),
   email: Type.String({ format: 'email' }),
-  phone: Type.String(),
+  phone: Type.Optional(Type.String()),
   message: Type.String(),
 })
 

@@ -34,8 +34,10 @@ export class UserService implements IService<UserDocument> {
       const { userId, mode, erroMessage } = request.user as AuthCallbackValidationType;
       console.log({ userId, mode });
       if (userId) {
+        console.log({ user: request.session.get("user") })
         return reply.redirect(`${CRM_FRONTEND_URL}/auth?authId=${userId}`);
       } else {
+        console.log({ user: request.session.get("user") })
         return reply.redirect(`${CRM_FRONTEND_URL}/auth?errorMsg="${erroMessage}"`);
       }
 
@@ -96,6 +98,15 @@ export class UserService implements IService<UserDocument> {
       if (error instanceof ReplyError)
         return reply.status(error.code).send({ success: false, data: error.message });
       else return reply.status(500).send({ success: false, data: "Sorry, something went wrong" })
+    }
+  }
+
+  logoutUser = async (request: FastifyRequest, reply: FastifyReply) => {
+    try {
+      request.session.delete()
+      return reply.send({ success: true, data: "logged out" });
+    } catch (error) {
+      return reply.status(500).send({ success: false, data: "Sorry, something went wrong" })
     }
   }
 

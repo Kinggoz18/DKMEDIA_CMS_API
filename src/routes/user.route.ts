@@ -8,7 +8,7 @@ import IRoute from "../interfaces/IRoute";
 import { RequestQueryValidation, RequestQueryValidationType } from "../types/RequestQuery.type";
 import { AuthRequestQueryValidationType } from "../types/AuthRequestQuery.type";
 import fastifyPassport from '@fastify/passport';
-import crypto from 'crypto';
+import { AuthenticateOptions } from "passport";
 
 /**
  * Auth route class. Used to create and register auth routes
@@ -53,6 +53,7 @@ export class UserRoute implements IRoute<UserDocument> {
   }
 
   async initRoutes() {
+
     try {
       /******************************************* Route Declarations *******************************************/
       const getUserRoute: RouteOptions<Server, IncomingMessage, ServerResponse, { Params: RequestQueryValidationType; Reply: IReplyType }> = {
@@ -63,6 +64,12 @@ export class UserRoute implements IRoute<UserDocument> {
           response: IReply.$schema
         },
         handler: (request, reply) => this.service.getUser(request, reply)
+      }
+
+      const logoutUserRoute: RouteOptions<Server, IncomingMessage, ServerResponse> = {
+        method: 'GET',
+        url: `/`,
+        handler: (request, reply) => this.service.logoutUser(request, reply)
       }
 
       const loginUserRoute: RouteOptions<Server, IncomingMessage, ServerResponse, { Querystring: AuthRequestQueryValidationType }> = {
@@ -76,24 +83,20 @@ export class UserRoute implements IRoute<UserDocument> {
         },
         preValidation: (request, reply) => {
           const { id, mode } = request.query;
-          request.session.delete(); // Clear session to prevent auto-login
+          const googleAuthOptions = {
+            scope: [
+              "https://www.googleapis.com/auth/userinfo.profile",
+              "https://www.googleapis.com/auth/userinfo.email",
+            ],
+            state: JSON.stringify({ mode: request.query.mode, id: request.query.id }),
+            prompt: "select_account", // Add prompt here
+          } as AuthenticateOptions & { prompt: string }; // Type assertion
+
           if (mode === "signup" && id) {
             // Encrypt the signupCode before sending it in the state
-            return fastifyPassport.authenticate("google", {
-              scope: [
-                "https://www.googleapis.com/auth/userinfo.profile",
-                "https://www.googleapis.com/auth/userinfo.email",
-              ],
-              state: JSON.stringify({ mode: request.query.mode, id: request.query.id }),
-            }).call(this.server, request, reply); // Use `.call(fastify, request, reply)` to ensure the correct context
+            return fastifyPassport.authenticate("google", googleAuthOptions).call(this.server, request, reply); // Use `.call(fastify, request, reply)` to ensure the correct context
           } else {
-            return fastifyPassport.authenticate("google", {
-              scope: [
-                "https://www.googleapis.com/auth/userinfo.profile",
-                "https://www.googleapis.com/auth/userinfo.email",
-              ],
-              state: JSON.stringify({ mode: request.query.mode }),
-            }).call(this.server, request, reply); // Use `.call(fastify, request, reply)` to ensure the correct context
+            return fastifyPassport.authenticate("google", googleAuthOptions).call(this.server, request, reply); // Use `.call(fastify, request, reply)` to ensure the correct context
           }
 
 
@@ -121,7 +124,7 @@ export class UserRoute implements IRoute<UserDocument> {
 
       /******************************************* Register Routes *******************************************/
       await this.server.register(function (app, _, done) {
-        // app.route(registerUserRoute)
+        app.route(logoutUserRoute)
         app.route(loginUserRoute)
         app.route(getUserRoute)
         app.route(deleteUserRoute)

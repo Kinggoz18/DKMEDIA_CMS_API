@@ -29,7 +29,8 @@ const PassportConfig = (sevrer: FastifyInstance, database: mongodb.Db) => {
         clientSecret: googleSecret,
         callbackURL: googleRegisterCallbackUrl,
         passReqToCallback: true, // Pass the request to the callback to access query parameters
-        prompt: "select_account",
+        scope: ['profile', 'email'],
+        prompt: "select_account consent"
       },
 
       async function (request: FastifyRequest<{ Querystring: PassportRequestQueryValidationType }>, accessToken: string, refreshToken: string, profile: Profile, cb: VerifyCallback) {

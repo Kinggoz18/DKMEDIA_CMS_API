@@ -22,7 +22,7 @@ const FRONTEND_URL = process.env.FRONTEND_URL ?? "";
 const CRM_FRONTEND_URL = process.env.CRM_FRONTEND_URL ?? "";
 
 // ****************************************************** END OF TESTS ****************************************************** //
-
+//TODO: Configure server logs propely
 const connectToDatabase = async () => {
   try {
     if (MONGODB_URL === "" || !MONGODB_URL) throw new Error("MongoDb URL is undefined");
@@ -65,19 +65,19 @@ export const startServer = async (server: FastifyInstance) => {
       },
     });
 
-    //Set up rate limiting
-    await server.register(fastifyRateLimit, {
-      global: false,
-      max: 200,
-      timeWindow: 5 * 1000 * 60 //5 minutes 
-    })
-
     //Set up secure session 
     // set up secure sessions for @fastify/passport to store data in
     server.register(fastifySecureSession, { key: fs.readFileSync(path.join(__dirname, 'secret-key')) })
 
     //Set up passport
     PassportConfig(server, database)
+
+    //Set up rate limiting
+    await server.register(fastifyRateLimit, {
+      global: false,
+      max: 200,
+      timeWindow: 5 * 1000 * 60 //5 minutes 
+    })
 
     // Register routes
     await server.register((app, _, done) => initAppRoutes(app, database, done), {
