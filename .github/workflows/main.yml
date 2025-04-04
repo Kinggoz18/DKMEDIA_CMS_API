@@ -43,7 +43,6 @@ jobs:
           script: |
             cd /var/www/dkmedia-api
             npm ci --production
-            pm2 delete dkmedia-api || true
             pm2 start dist/index.js --name dkmedia-api
             pm2 save
             pm2 startup
