@@ -12,6 +12,7 @@ export interface EventDocument extends Document {
   image: string;
   priority: EventPriority;
   organizer: OrganizerValidationType;
+  ticketLink: string;
 }
 
 export const EventMongooseSchema = new Schema<EventDocument>({
@@ -23,7 +24,8 @@ export const EventMongooseSchema = new Schema<EventDocument>({
     required: true,
     enum: EventPriority,
   },
-  organizer: OrganizerMongooseSchema
+  organizer: OrganizerMongooseSchema,
+  ticketLink: { type: String }
 }, { timestamps: true });
 
 export const EventModel = mongoose.model("Event", EventMongooseSchema) 

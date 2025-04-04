@@ -22,19 +22,19 @@ export class ContactUsRoute implements IRoute<ContactUsDocument> {
     this.logger = logger
 
     if (!this.server) {
-      console.log("Error: Failed to load server")
+      console.error("Error: Failed to load server")
       this.logger.error("Failed to load server");
       return;
     }
 
     if (!this.collection) {
-      console.log("Error: Failed to load contacts collection")
+      console.error("Error: Failed to load contacts collection")
       this.logger.error("Failed to load contacts collection");
       return;
     }
 
     if (!this.service) {
-      console.log("Error: Failed to load contacts service")
+      console.error("Error: Failed to load contacts service")
       this.logger.error("Failed to load contacts service");
       return;
     }
@@ -46,6 +46,12 @@ export class ContactUsRoute implements IRoute<ContactUsDocument> {
       const addContactRoute: RouteOptions<Server, IncomingMessage, ServerResponse, { Body: AddContactUsValidationType, Reply: IReplyType }> = {
         method: 'POST',
         url: '/',
+        config: {
+          rateLimit: {
+            max: 3, //3 inquiry attempts per user every 1 hour
+            timeWindow: 60 * 1000 * 60 //1 hour
+          }
+        },
         schema: {
           body: AddContactUsValidationSchema,
           response: IReply.$schema,
@@ -84,8 +90,8 @@ export class ContactUsRoute implements IRoute<ContactUsDocument> {
 
         done()
       }, { prefix: this.basePath })
-    } catch (error) {
-      console.log({ error })
+    } catch (error: any) {
+      console.error({ error })
       this.logger.error({ error });
       return;
     }

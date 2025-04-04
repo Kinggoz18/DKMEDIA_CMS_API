@@ -39,7 +39,7 @@ export class AboutUsService implements IService<AboutUsDocument> {
 
       const currentAboutUs = await this.dbCollection.findOne({});
 
-      console.log({ currentAboutUs })
+      console.error({ currentAboutUs })
       //If there is no about us
       if (!currentAboutUs) {
         const updateAboutUs = await this.dbCollection.insertOne(aboutUs);
@@ -55,7 +55,7 @@ export class AboutUsService implements IService<AboutUsDocument> {
         //Update the values
         const updatedTitle = title === "" ? currentAboutUs.title : title;
 
-        console.log({updatedTitle, paragraphs})
+        console.error({ updatedTitle, paragraphs })
         // Insert the new update
         const updateAboutUs = await this.dbCollection.updateOne({ _id: currentAboutUs?._id }, {
           $set: {
@@ -80,7 +80,7 @@ export class AboutUsService implements IService<AboutUsDocument> {
       }
 
     } catch (error: any) {
-      console.log({ error })
+      request.log.error(error?.message)
       if (error instanceof ReplyError)
         return reply.status(error.code).send({ success: false, data: error.message });
       else return reply.status(500).send({ success: false, data: "Sorry, something went wrong" })
@@ -94,7 +94,8 @@ export class AboutUsService implements IService<AboutUsDocument> {
     try {
       const aboutUsSection = await this.dbCollection.findOne({});
       return reply.code(200).send({ data: aboutUsSection, success: true })
-    } catch (error) {
+    } catch (error: any) {
+      request.log.error(error?.message)
       if (error instanceof ReplyError)
         return reply.status(error.code).send({ success: false, data: error.message });
       else return reply.status(500).send({ success: false, data: "Sorry, something went wrong" })
@@ -104,12 +105,13 @@ export class AboutUsService implements IService<AboutUsDocument> {
   /**
    * Delete about us section
    */
-  deleteAboutUs = async (requst: FastifyRequest, reply: FastifyReply) => {
+  deleteAboutUs = async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const deleteAboutUs = await this.dbCollection.deleteOne({});
       if (deleteAboutUs.deletedCount != 1) throw new ReplyError("Nothing to delete", 404);
       return reply.code(200).send({ data: "Deleted about us", success: true })
-    } catch (error) {
+    } catch (error: any) {
+      request.log.error(error?.message)
       if (error instanceof ReplyError)
         return reply.status(error.code).send({ success: false, data: error.message });
       else return reply.status(500).send({ success: false, data: "Sorry, something went wrong" })

@@ -66,6 +66,7 @@ export class ContactUsService implements IService<ContactUsDocument> {
       return reply.code(201).send({ data: getNewContactUs, success: newContactUs.acknowledged })
 
     } catch (error: any) {
+      request.log.error(error?.message)
       if (error instanceof ReplyError)
         return reply.status(error.code).send({ success: false, data: error.message });
       else return reply.status(500).send({ success: false, data: "Sorry, something went wrong" })
@@ -82,7 +83,8 @@ export class ContactUsService implements IService<ContactUsDocument> {
       }
 
       return reply.status(200).send({ data: "Deleted successfuly", success: true });
-    } catch (error) {
+    } catch (error: any) {
+      request.log.error(error?.message)
       if (error instanceof ReplyError)
         return reply.status(error.code).send({ success: false, data: error.message });
       else return reply.status(500).send({ success: false, data: "Sorry, something went wrong" })
@@ -99,7 +101,8 @@ export class ContactUsService implements IService<ContactUsDocument> {
         throw new ReplyError("Contact us inquiry not found", 404);
       }
       return reply.status(200).send({ data: contactUsInquiry, success: true });
-    } catch (error) {
+    } catch (error: any) {
+      request.log.error(error?.message)
       if (error instanceof ReplyError)
         return reply.status(error.code).send({ success: false, data: error.message });
       else return reply.status(500).send({ success: false, data: "Sorry, something went wrong" })
@@ -110,7 +113,8 @@ export class ContactUsService implements IService<ContactUsDocument> {
     try {
       const allContactUsInquiries = await this.dbCollection.find({}).toArray();
       return reply.status(200).send({ data: allContactUsInquiries, success: true });
-    } catch (error) {
+    } catch (error: any) {
+      request.log.error(error?.message)
       return reply.status(500).send({ success: false, data: "Sorry, something went wrong" })
     }
   }

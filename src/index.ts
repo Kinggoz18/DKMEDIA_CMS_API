@@ -14,7 +14,12 @@ import path from 'node:path';
 import { PassportConfig } from './config/passport';
 
 dotenv.config();
-const server: FastifyInstance = fastify({ logger: true });
+const server: FastifyInstance = fastify({
+  logger: {
+    level: "info",
+    file: path.join(__dirname, '/logs/app.log')
+  }
+});
 const MONGODB_URL = process.env.MONGODB_URL ?? "";
 const BASE_PATH = process.env.BASE_PATH ?? "";
 const DATABASE_NAME = process.env.DATABASE_NAME ?? "";
@@ -38,7 +43,7 @@ const connectToDatabase = async () => {
 
     return server
   } catch (error: any) {
-    console.log("An error occured trying to connect to mongodb");
+    console.error("An error occured trying to connect to mongodb");
     throw new Error(error?.message);
   }
 }
@@ -87,7 +92,7 @@ export const startServer = async (server: FastifyInstance) => {
 
     return server;
   } catch (error: any) {
-    console.log({ error })
+    console.error({ error })
     throw new Error(error.message)
   }
 }
@@ -97,10 +102,10 @@ connectToDatabase() //Start the database
   .then((server) => { //Start listening
     server.listen({ port: 4000 }, (err, address) => {
       if (err) {
-        console.log(err)
+        console.error(err)
         process.exit(1);
       }
-      console.log(`Server listening at ${address}`)
+      console.error(`Server listening at ${address}`)
     })
   });
 

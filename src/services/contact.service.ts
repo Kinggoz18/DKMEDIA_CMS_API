@@ -45,8 +45,6 @@ export class ContactService implements IService<ContactDocument> {
       await contact.validate();
 
       const currentContact = await this.dbCollection.findOne({});
-
-      console.log({ currentContact })
       //If there is no contact
       if (!currentContact) {
         const updateContact = await this.dbCollection.insertOne(contact);
@@ -85,6 +83,7 @@ export class ContactService implements IService<ContactDocument> {
       }
 
     } catch (error: any) {
+      request.log.error(error?.message)
       if (error instanceof ReplyError)
         return reply.status(error.code).send({ success: false, data: error.message });
       else return reply.status(500).send({ success: false, data: "Sorry, something went wrong" })
@@ -105,7 +104,8 @@ export class ContactService implements IService<ContactDocument> {
       }
 
       return reply.status(200).send({ data: "Deleted successfuly", success: true });
-    } catch (error) {
+    } catch (error: any) {
+      request.log.error(error?.message)
       if (error instanceof ReplyError)
         return reply.status(error.code).send({ success: false, data: error.message });
       else return reply.status(500).send({ success: false, data: "Sorry, something went wrong" })
@@ -127,7 +127,8 @@ export class ContactService implements IService<ContactDocument> {
         throw new ReplyError("Contact us inquiry not found", 404);
       }
       return reply.status(200).send({ data: contact, success: true });
-    } catch (error) {
+    } catch (error: any) {
+      request.log.error(error?.message)
       if (error instanceof ReplyError)
         return reply.status(error.code).send({ success: false, data: error.message });
       else return reply.status(500).send({ success: false, data: "Sorry, something went wrong" })

@@ -22,19 +22,19 @@ export class UploadMediaRoute implements IRoute<UploadedMediaDocument> {
     this.logger = logger
 
     if (!this.server) {
-      console.log("Error: Failed to load server")
+      console.error("Error: Failed to load server")
       this.logger.error("Failed to load server");
       return;
     }
 
     if (!this.collection) {
-      console.log("Error: Failed to load uploaded media collection")
+      console.error("Error: Failed to load uploaded media collection")
       this.logger.error("Failed to load uploaded media collection");
       return;
     }
 
     if (!this.service) {
-      console.log("Error: Failed to load uploaded media service")
+      console.error("Error: Failed to load uploaded media service")
       this.logger.error("Failed to load uploaded media service");
       return;
     }
@@ -96,8 +96,8 @@ export class UploadMediaRoute implements IRoute<UploadedMediaDocument> {
 
         done()
       }, { prefix: this.basePath })
-    } catch (error) {
-      console.log({ error })
+    } catch (error: any) {
+      console.error({ error })
       this.logger.error({ error });
       return;
     }

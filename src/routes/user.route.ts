@@ -34,19 +34,19 @@ export class UserRoute implements IRoute<UserDocument> {
     this.service = new UserService(this.collection, logger, authSessionCollection);
 
     if (!this.server) {
-      console.log("Error: Failed to load server")
+      console.error("Error: Failed to load server")
       this.logger.error("Failed to load server");
       return;
     }
 
     if (!this.collection) {
-      console.log("Error: Failed to load auth collection")
+      console.error("Error: Failed to load auth collection")
       this.logger.error("Failed to load auth collection");
       return;
     }
 
     if (!this.service) {
-      console.log("Error: Failed to load auth service")
+      console.error("Error: Failed to load auth service")
       this.logger.error("Failed to load auth service");
       return;
     }
@@ -133,7 +133,7 @@ export class UserRoute implements IRoute<UserDocument> {
       }, { prefix: this.basePath })
 
     } catch (error: any) {
-      console.log({ error })
+      console.error({ error })
       this.logger.error({ error });
       return;
     }

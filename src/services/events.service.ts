@@ -64,13 +64,14 @@ export class EventService implements IService<EventDocument> {
         image,
         priority,
         organizer,
+        ticketLink
       } = request.body;
 
       //Check if the maximum highlights has been added
       if (priority === EventPriority.Highlight) {
         const currentDateTime = new Date().toISOString().slice(0, 16);
         const allHighlights = await this.dbCollection.find({
-          priority: EventPriority.Highlight, 
+          priority: EventPriority.Highlight,
           date: { $gte: currentDateTime } // Filters events that are in the future
         }).toArray();
         if (allHighlights.length >= 4) {
@@ -85,6 +86,7 @@ export class EventService implements IService<EventDocument> {
         image,
         priority,
         organizer,
+        ticketLink
       })
       await newEvent.validate();
 
@@ -99,7 +101,7 @@ export class EventService implements IService<EventDocument> {
 
       return reply.code(201).send({ data: getSavedEvent, success: true });
     } catch (error: any) {
-      console.log({ error })
+      request.log.error(error?.message)
       if (error instanceof ReplyError)
         return reply.status(error.code).send({ success: false, data: error.message });
       else return reply.status(500).send({ success: false, data: "Sorry, something went wrong" })
@@ -114,19 +116,17 @@ export class EventService implements IService<EventDocument> {
   deleteEvent = async (request: FastifyRequest<{ Params: RequestQueryValidationType }>, reply: FastifyReply<{ Reply: IReplyType }>) => {
     try {
       const { id } = request.params;
-      console.log({ id })
       //Check if the event exists
       const eventExists = await this.dbCollection.findOne({ _id: new ObjectId(id) })
       if (!eventExists?._id) throw new ReplyError("Event does not exists", 404);
 
-      console.log({ eventExists })
       //Delete the event
       const deleteResult = await this.dbCollection.deleteOne({ _id: new ObjectId(id) });
       if (!deleteResult.acknowledged) throw new ReplyError("Failed to delete devent", 400);
 
-      console.log({ deleteResult })
       return reply.code(200).send({ success: deleteResult.acknowledged, data: "event deleted" })
     } catch (error: any) {
+      request.log.error(error?.message)
       if (error instanceof ReplyError)
         return reply.status(error.code).send({ success: false, data: error.message });
       else return reply.status(500).send({ success: false, data: "Sorry, something went wrong" })
@@ -143,8 +143,8 @@ export class EventService implements IService<EventDocument> {
     try {
       const allEvents = await this.dbCollection.find({}).toArray();
       return reply.code(200).send({ success: true, data: allEvents })
-    } catch (error) {
-      console.log({ error })
+    } catch (error: any) {
+      request.log.error(error?.message)
       reply.code(400).send({ success: false, data: "Sorry, something went wrong" })
     }
   }
@@ -158,14 +158,13 @@ export class EventService implements IService<EventDocument> {
   getEventById = async (request: FastifyRequest<{ Params: RequestQueryValidationType }>, reply: FastifyReply<{ Reply: IReplyType }>) => {
     try {
       const { id } = request.params;
-      console.log({ id })
       const event = await this.dbCollection.findOne({ _id: new ObjectId(id) });
-      console.log({ event })
 
       if (!event?._id) throw new ReplyError("Event does not exist", 404);
 
       return reply.status(200).send({ success: true, data: event })
     } catch (error: any) {
+      request.log.error(error?.message)
       if (error instanceof ReplyError)
         return reply.status(error.code).send({ success: false, data: error.message });
       else return reply.status(500).send({ success: false, data: "Sorry, something went wrong" })
@@ -186,7 +185,7 @@ export class EventService implements IService<EventDocument> {
         date,
         image,
         priority,
-        organizer, } = request.body;
+        organizer, ticketLink } = request.body;
 
       const event = await this.dbCollection.findOne({ _id: new ObjectId(id) });
       if (!event?._id) throw new ReplyError("Event does not exist", 404);
@@ -198,6 +197,7 @@ export class EventService implements IService<EventDocument> {
           image: image ?? event.image,
           priority: priority ?? event.priority,
           organizer: organizer ?? event.organizer,
+          ticketLink: ticketLink ?? event.ticketLink,
         }
       });
 
@@ -211,10 +211,9 @@ export class EventService implements IService<EventDocument> {
         throw new ReplyError("Failed to get updated event", 404);
       }
 
-      console.log({ Updated: updatedEvent })
       return reply.status(200).send({ success: true, data: updatedEvent })
     } catch (error: any) {
-      console.log({ error })
+      request.log.error(error?.message)
       if (error instanceof ReplyError)
         return reply.status(error.code).send({ success: false, data: error.message });
       else return reply.status(500).send({ success: false, data: "Sorry, something went wrong" })
@@ -258,6 +257,7 @@ export class EventService implements IService<EventDocument> {
 
       return reply.code(200).send({ success: true, data: result?.secure_url });
     } catch (error: any) {
+      request.log.error(error?.message)
       console.error('Cloudinary Image Upload Error:', error);
       return reply.status(500).send({ success: false, data: "Cloudinary image upload failed" })
     }
@@ -296,6 +296,7 @@ export class EventService implements IService<EventDocument> {
 
       return reply.code(200).send({ success: true, data: result?.secure_url });
     } catch (error: any) {
+      request.log.error(error?.message)
       console.error('Cloudinary video Upload Error:', error);
       return reply.status(500).send({ success: false, data: "Cloudinary video upload failed" })
     }

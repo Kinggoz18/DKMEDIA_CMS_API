@@ -44,7 +44,8 @@ export class OrganizerService implements IService<OrganizerDocument> {
       }
 
       return reply.code(201).send({ data: newOrganizer, success: true });
-    } catch (error) {
+    } catch (error: any) {
+      request.log.error(error?.message)
       if (error instanceof ReplyError)
         return reply.status(error.code).send({ success: false, data: error.message });
       else return reply.status(500).send({ success: false, data: "Sorry, something went wrong" })
@@ -65,7 +66,8 @@ export class OrganizerService implements IService<OrganizerDocument> {
         throw new ReplyError("Failed to delete organizer", 404);
       }
       return reply.code(200).send({ data: "deleted susccessfuly", success: true });
-    } catch (error) {
+    } catch (error: any) {
+      request.log.error(error?.message)
       if (error instanceof ReplyError)
         return reply.status(error.code).send({ success: false, data: error.message });
       else return reply.status(500).send({ success: false, data: "Sorry, something went wrong" })
@@ -88,7 +90,8 @@ export class OrganizerService implements IService<OrganizerDocument> {
       }
 
       return reply.code(200).send({ data: organizer, success: true });
-    } catch (error) {
+    } catch (error: any) {
+      request.log.error(error?.message)
       if (error instanceof ReplyError)
         return reply.status(error.code).send({ success: false, data: error.message });
       else return reply.status(500).send({ success: false, data: "Sorry, something went wrong" })
@@ -131,7 +134,8 @@ export class OrganizerService implements IService<OrganizerDocument> {
 
       return reply.code(200).send({ data: updatedOrganizer, success: true });
 
-    } catch (error) {
+    } catch (error: any) {
+      request.log.error(error?.message)
       if (error instanceof ReplyError)
         return reply.status(error.code).send({ success: false, data: error.message });
       else return reply.status(500).send({ success: false, data: "Sorry, something went wrong" })
@@ -148,7 +152,8 @@ export class OrganizerService implements IService<OrganizerDocument> {
     try {
       const allOrganizer = await this.dbCollection.find({}).toArray();
       return reply.code(200).send({ data: allOrganizer, success: true })
-    } catch (error) {
+    } catch (error: any) {
+      request.log.error(error?.message)
       return reply.status(500).send({ success: false, data: "Sorry, something went wrong" })
     }
   }

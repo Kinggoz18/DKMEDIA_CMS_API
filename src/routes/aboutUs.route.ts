@@ -22,19 +22,19 @@ export class AboutUsRoute implements IRoute<AboutUsDocument> {
     this.logger = logger
 
     if (!this.server) {
-      console.log("Error: Failed to load server")
+      console.error("Error: Failed to load server")
       this.logger.error("Failed to load server");
       return;
     }
 
     if (!this.collection) {
-      console.log("Error: Failed to load about us collection")
+      console.error("Error: Failed to load about us collection")
       this.logger.error("Failed to load about us collection");
       return;
     }
 
     if (!this.service) {
-      console.log("Error: Failed to load about us service")
+      console.error("Error: Failed to load about us service")
       this.logger.error("Failed to load about us service");
       return;
     }
@@ -85,8 +85,8 @@ export class AboutUsRoute implements IRoute<AboutUsDocument> {
 
         done()
       }, { prefix: this.basePath })
-    } catch (error) {
-      console.log({ error })
+    } catch (error: any) {
+      console.error({ error })
       this.logger.error({ error });
       return;
     }

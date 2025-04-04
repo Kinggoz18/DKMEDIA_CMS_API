@@ -22,19 +22,19 @@ export class OrganizerRoute implements IRoute<OrganizerDocument> {
     this.logger = logger
 
     if (!this.server) {
-      console.log("Error: Failed to load server")
+      console.error("Error: Failed to load server")
       this.logger.error("Failed to load server");
       return;
     }
 
     if (!this.collection) {
-      console.log("Error: Failed to load organizer collection")
+      console.error("Error: Failed to load organizer collection")
       this.logger.error("Failed to load organizer collection");
       return;
     }
 
     if (!this.service) {
-      console.log("Error: Failed to load organizer service")
+      console.error("Error: Failed to load organizer service")
       this.logger.error("Failed to load organizer service");
       return;
     }
@@ -110,8 +110,8 @@ export class OrganizerRoute implements IRoute<OrganizerDocument> {
 
         done()
       }, { prefix: this.basePath })
-    } catch (error) {
-      console.log({ error })
+    } catch (error: any) {
+      console.error({ error })
       this.logger.error({ error });
       return;
     }

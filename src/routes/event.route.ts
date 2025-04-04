@@ -22,19 +22,19 @@ export class EventRoute implements IRoute<EventDocument> {
     this.logger = logger
 
     if (!this.server) {
-      console.log("Error: Failed to load server")
+      console.error("Error: Failed to load server")
       this.logger.error("Failed to load server");
       return;
     }
 
     if (!this.collection) {
-      console.log("Error: Failed to load event collection")
+      console.error("Error: Failed to load event collection")
       this.logger.error("Failed to load event collection");
       return;
     }
 
     if (!this.service) {
-      console.log("Error: Failed to load event service")
+      console.error("Error: Failed to load event service")
       this.logger.error("Failed to load event service");
       return;
     }
@@ -125,8 +125,8 @@ export class EventRoute implements IRoute<EventDocument> {
 
         done()
       }, { prefix: this.basePath })
-    } catch (error) {
-      console.log({ error })
+    } catch (error: any) {
+      console.error({ error })
       this.logger.error({ error });
       return;
     }

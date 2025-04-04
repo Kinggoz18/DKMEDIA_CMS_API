@@ -22,19 +22,19 @@ export class ContactRoute implements IRoute<ContactDocument> {
     this.logger = logger
 
     if (!this.server) {
-      console.log("Error: Failed to load server")
+      console.error("Error: Failed to load server")
       this.logger.error("Failed to load server");
       return;
     }
 
     if (!this.collection) {
-      console.log("Error: Failed to load contacts collection")
+      console.error("Error: Failed to load contacts collection")
       this.logger.error("Failed to load contacts collection");
       return;
     }
 
     if (!this.service) {
-      console.log("Error: Failed to load contacts service")
+      console.error("Error: Failed to load contacts service")
       this.logger.error("Failed to load contacts service");
       return;
     }
@@ -77,8 +77,8 @@ export class ContactRoute implements IRoute<ContactDocument> {
 
         done()
       }, { prefix: this.basePath })
-    } catch (error) {
-      console.log({ error })
+    } catch (error: any) {
+      console.error({ error })
       this.logger.error({ error });
       return;
     }

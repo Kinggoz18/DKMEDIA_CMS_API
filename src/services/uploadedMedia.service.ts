@@ -49,7 +49,8 @@ export class UploadedMediaService implements IService<UploadedMediaDocument> {
       }
 
       return reply.code(201).send({ data: getSavedMedia, success: true })
-    } catch (error) {
+    } catch (error: any) {
+      request.log.error(error?.message)
       if (error instanceof ReplyError)
         return reply.status(error.code).send({ success: false, data: error.message });
       else return reply.status(500).send({ success: false, data: "Sorry, something went wrong" })
@@ -70,7 +71,8 @@ export class UploadedMediaService implements IService<UploadedMediaDocument> {
         throw new ReplyError("Failed to delete media", 400);
       }
       return reply.code(200).send({ data: "deleted successfuly", success: true })
-    } catch (error) {
+    } catch (error: any) {
+      request.log.error(error?.message)
       if (error instanceof ReplyError)
         return reply.status(error.code).send({ success: false, data: error.message });
       else return reply.status(500).send({ success: false, data: "Sorry, something went wrong" })
@@ -93,7 +95,8 @@ export class UploadedMediaService implements IService<UploadedMediaDocument> {
       }
 
       return reply.code(200).send({ data: media, success: true })
-    } catch (error) {
+    } catch (error: any) {
+      request.log.error(error?.message)
       if (error instanceof ReplyError)
         return reply.status(error.code).send({ success: false, data: error.message });
       else return reply.status(500).send({ success: false, data: "Sorry, something went wrong" })
@@ -110,7 +113,8 @@ export class UploadedMediaService implements IService<UploadedMediaDocument> {
     try {
       const allMedia = await this.dbCollection.find({}).toArray();
       return reply.code(200).send({ data: allMedia, success: true })
-    } catch (error) {
+    } catch (error: any) {
+      request.log.error(error?.message)
       return reply.status(500).send({ success: false, data: "Sorry, something went wrong" })
     }
   }

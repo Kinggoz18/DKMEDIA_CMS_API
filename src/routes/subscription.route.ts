@@ -22,19 +22,19 @@ export class SubscriptionRoute implements IRoute<SubscriptionDocument> {
     this.logger = logger
 
     if (!this.server) {
-      console.log("Error: Failed to load server")
+      console.error("Error: Failed to load server")
       this.logger.error("Failed to load server");
       return;
     }
 
     if (!this.collection) {
-      console.log("Error: Failed to load subscription collection")
+      console.error("Error: Failed to load subscription collection")
       this.logger.error("Failed to load subscription collection");
       return;
     }
 
     if (!this.service) {
-      console.log("Error: Failed to load subscription service")
+      console.error("Error: Failed to load subscription service")
       this.logger.error("Failed to load subscription service");
       return;
     }
@@ -49,6 +49,12 @@ export class SubscriptionRoute implements IRoute<SubscriptionDocument> {
       const addSubscriptionRoute: RouteOptions<Server, IncomingMessage, ServerResponse, { Body: AddSubscriptionValidationType, Reply: IReplyType }> = {
         method: 'POST',
         url: '/',
+        config: {
+          rateLimit: {
+            max: 2, //2 Subscription attempt per every 1 hour
+            timeWindow: 60 * 1000 * 60 //1 hour
+          }
+        },
         schema: {
           body: AddSubscriptionValidationSchema,
           response: IReply.$schema,
@@ -96,8 +102,8 @@ export class SubscriptionRoute implements IRoute<SubscriptionDocument> {
 
         done()
       }, { prefix: this.basePath })
-    } catch (error) {
-      console.log({ error })
+    } catch (error: any) {
+      console.error({ error })
       this.logger.error({ error });
       return;
     }

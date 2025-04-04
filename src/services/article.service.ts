@@ -54,6 +54,7 @@ export class ArticleService implements IService<ArticleDocument> {
       return reply.code(201).send({ data: getNewArticle, success: newArticle.acknowledged })
 
     } catch (error: any) {
+      request.log.error(error?.message)
       if (error instanceof ReplyError)
         return reply.status(error.code).send({ success: false, data: error.message });
       else return reply.status(500).send({ success: false, data: "Sorry, something went wrong" })
@@ -70,7 +71,8 @@ export class ArticleService implements IService<ArticleDocument> {
       }
 
       return reply.status(200).send({ data: "Deleted successfuly", success: true });
-    } catch (error) {
+    } catch (error: any) {
+      request.log.error(error?.message)
       if (error instanceof ReplyError)
         return reply.status(error.code).send({ success: false, data: error.message });
       else return reply.status(500).send({ success: false, data: "Sorry, something went wrong" })
@@ -87,7 +89,8 @@ export class ArticleService implements IService<ArticleDocument> {
         throw new ReplyError("Article not found", 404);
       }
       return reply.status(200).send({ data: article, success: true });
-    } catch (error) {
+    } catch (error: any) {
+      request.log.error(error?.message)
       if (error instanceof ReplyError)
         return reply.status(error.code).send({ success: false, data: error.message });
       else return reply.status(500).send({ success: false, data: "Sorry, something went wrong" })
@@ -98,7 +101,8 @@ export class ArticleService implements IService<ArticleDocument> {
     try {
       const allArticles = await this.dbCollection.find({}).toArray();
       return reply.status(200).send({ data: allArticles, success: true });
-    } catch (error) {
+    } catch (error: any) {
+      request.log.error(error?.message)
       return reply.status(500).send({ success: false, data: "Sorry, something went wrong" })
     }
   }

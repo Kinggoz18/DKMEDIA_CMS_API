@@ -7,7 +7,8 @@ export const AddEventValidationSchema = Type.Object({
   date: Type.String(),
   image: Type.String({ format: 'uri' }),
   priority: Type.Enum(EventPriority),
-  organizer: OrganizerValidationSchema
+  organizer: OrganizerValidationSchema,
+  ticketLink: Type.String()
 });
 
 export const UpdateEventValidationSchema = Type.Object({
@@ -16,7 +17,8 @@ export const UpdateEventValidationSchema = Type.Object({
   date: Type.Optional(Type.String(),),
   image: Type.Optional(Type.String({ format: 'uri' })),
   priority: Type.Optional(Type.Enum(EventPriority)),
-  organizer: Type.Optional(OrganizerValidationSchema)
+  organizer: Type.Optional(OrganizerValidationSchema),
+  ticketLink: Type.Optional(Type.String())
 });
 
 export const EventValidationSchema = Type.Object({
@@ -25,7 +27,8 @@ export const EventValidationSchema = Type.Object({
   date: Type.String(),
   image: Type.String({ format: 'uri' }),
   priority: Type.Enum(EventPriority),
-  organizer: OrganizerValidationSchema
+  organizer: OrganizerValidationSchema,
+  ticketLink: Type.String()
 });
 
 export type EventValidationType = Static<typeof EventValidationSchema>;

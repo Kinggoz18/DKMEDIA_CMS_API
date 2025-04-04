@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json && npm run copy-assets",
+    "copy-assets": "cpx 'secret-key' dist/src/ && cpx 'src/logs/**' dist/src/logs",
     "watch": "tsc -p tsconfig.json --watch",
     "start": "node ./dist/src/index.js",
     "dev": "tsc -p tsconfig.json --watch & nodemon ./dist/src/index.js",
@@ -16,6 +17,7 @@
   "description": "",
   "devDependencies": {
     "@types/node": "^22.13.4",
+    "cpx": "^1.5.0",
     "pino-pretty": "^13.0.0",
     "typescript": "^5.7.3"
   },

@@ -30,20 +30,16 @@ export class UserService implements IService<UserDocument> {
 
   googleAuthHandler = (request: FastifyRequest, reply: FastifyReply) => {
     try {
-      console.log("googleAuth");
       const { userId, mode, erroMessage } = request.user as AuthCallbackValidationType;
-      console.log({ userId, mode });
       if (userId) {
-        console.log({ user: request.session.get("user") })
         return reply.redirect(`${CRM_FRONTEND_URL}/auth?authId=${userId}`);
       } else {
-        console.log({ user: request.session.get("user") })
         return reply.redirect(`${CRM_FRONTEND_URL}/auth?errorMsg="${erroMessage}"`);
       }
 
-    } catch (error) {
-      console.log("Error while saving user", error);
-
+    } catch (error: any) {
+      request.log.error(error?.message)
+      return reply.redirect(`${CRM_FRONTEND_URL}/auth?errorMsg="${error?.message}"`);
     }
   };
 
@@ -62,7 +58,8 @@ export class UserService implements IService<UserDocument> {
       }
 
       return reply.code(200).send({ data: user, success: true })
-    } catch (error) {
+    } catch (error: any) {
+      request.log.error(error?.message)
       if (error instanceof ReplyError)
         return reply.status(error.code).send({ success: false, data: error.message });
       else return reply.status(500).send({ success: false, data: "Sorry, something went wrong" })
@@ -78,7 +75,6 @@ export class UserService implements IService<UserDocument> {
 
       //Veirfy the code
       const hashedCode = this.createHash(code, SIGNUP_SECRET);
-      console.log({ hashedCode });
 
       if (hashedCode != SIGNUP_CODE_HASHED) {
         throw new ReplyError("Unathorized access", 400);
@@ -94,7 +90,8 @@ export class UserService implements IService<UserDocument> {
 
       await this.authSessionCollection.insertOne(newAuthSession)
       return reply.code(200).send({ data: newAuthSession._id.toString(), success: true })
-    } catch (error) {
+    } catch (error: any) {
+      request.log.error(error?.message)
       if (error instanceof ReplyError)
         return reply.status(error.code).send({ success: false, data: error.message });
       else return reply.status(500).send({ success: false, data: "Sorry, something went wrong" })
@@ -105,7 +102,8 @@ export class UserService implements IService<UserDocument> {
     try {
       request.session.delete()
       return reply.send({ success: true, data: "logged out" });
-    } catch (error) {
+    } catch (error: any) {
+      request.log.error(error?.message)
       return reply.status(500).send({ success: false, data: "Sorry, something went wrong" })
     }
   }

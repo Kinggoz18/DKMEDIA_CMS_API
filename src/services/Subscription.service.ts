@@ -47,7 +47,7 @@ export class SubscriptionService implements IService<SubscriptionDocument> {
 
       const isSubscribed = await this.dbCollection.findOne({email: email});
       if(isSubscribed) {
-        console.log("User is already subscribed to DKMEDIA newsletter");
+        request.log.error("Error: User is already subscribed to DKMEDIA newsletter")
         throw new ReplyError("Error: User is already subscribed to DKMEDIA newsletter", 400);
       }
 
@@ -56,12 +56,12 @@ export class SubscriptionService implements IService<SubscriptionDocument> {
       const getNewSubscription = await this.dbCollection.findOne({ _id: saveNewSubscription?.insertedId });
 
       if (!getNewSubscription) {
-        console.log("Failed to save new subscription");
         throw new ReplyError("Failed to save new subscription", 400);
       }
 
       return reply.code(201).send({ data: getNewSubscription, success: true })
-    } catch (error) {
+    } catch (error: any) {
+      request.log.error(error?.message)
       if (error instanceof ReplyError)
         return reply.status(error.code).send({ success: false, data: error.message });
       else return reply.status(500).send({ success: false, data: "Sorry, something went wrong" })
@@ -82,7 +82,8 @@ export class SubscriptionService implements IService<SubscriptionDocument> {
       if (subscriptionToDelete.deletedCount != 1) throw new ReplyError("Subscription not deleted", 404);
 
       return reply.code(200).send({ data: "Subscription deleted", success: true })
-    } catch (error) {
+    } catch (error: any) {
+      request.log.error(error?.message)
       if (error instanceof ReplyError)
         return reply.status(error.code).send({ success: false, data: error.message });
       else return reply.status(500).send({ success: false, data: "Sorry, something went wrong" })
@@ -103,7 +104,8 @@ export class SubscriptionService implements IService<SubscriptionDocument> {
       if (!getSubscription) throw new ReplyError("Subscription not found", 404);
 
       return reply.code(200).send({ data: getSubscription, success: true })
-    } catch (error) {
+    } catch (error: any) {
+      request.log.error(error?.message)
       if (error instanceof ReplyError)
         return reply.status(error.code).send({ success: false, data: error.message });
       else return reply.status(500).send({ success: false, data: "Sorry, something went wrong" })
@@ -120,7 +122,8 @@ export class SubscriptionService implements IService<SubscriptionDocument> {
     try {
       const allSubcriptions = await this.dbCollection.find({}).toArray();
       return reply.code(200).send({ data: allSubcriptions, success: true })
-    } catch (error) {
+    } catch (error: any) {
+      request.log.error(error?.message)
       return reply.status(500).send({ success: false, data: "Sorry, something went wrong" })
     }
   }
