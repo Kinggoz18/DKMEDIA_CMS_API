@@ -47,3 +47,4 @@ jobs:
             pm2 start ./dist/src/index.js --name dkmedia-api -f
             pm2 save
             pm2 startup
+            pm2 list
