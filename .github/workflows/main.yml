@@ -32,7 +32,7 @@ jobs:
           REMOTE_HOST: ${{ secrets.VPS_HOST }}
           REMOTE_USER: ${{ secrets.VPS_USER }}
           TARGET: "/var/www/dkmedia-api" # Update to actual path
-          ARGS: "-az --delete --include='dist/' --include='package.json' --include='package-lock.json' --include='node_modules/' --exclude='*'"
+          ARGS: "-az --delete --include='dist/***' --include='package.json' --include='package-lock.json' --include='node_modules/' --exclude='*'"
 
       - name: Restart API Service
         uses: appleboy/ssh-action@v0.1.6
