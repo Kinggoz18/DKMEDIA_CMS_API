@@ -15,6 +15,7 @@ import { PassportConfig } from './config/passport';
 
 dotenv.config();
 const server: FastifyInstance = fastify({
+  trustProxy: true,
   logger: {
     level: "info",
     file: path.join(__dirname, '/logs/app.log')
