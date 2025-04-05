@@ -44,6 +44,6 @@ jobs:
             cd /var/www/dkmedia-api
             npm ci --production
             pm2 delete dkmedia-api --silent || true
-            pm2 start dist/index.js --name dkmedia-api -f
+            pm2 start ./dist/src/index.js --name dkmedia-api -f
             pm2 save
             sudo pm2 startup
