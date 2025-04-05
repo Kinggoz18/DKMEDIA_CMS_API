@@ -26,6 +26,7 @@ const BASE_PATH = process.env.BASE_PATH ?? "";
 const DATABASE_NAME = process.env.DATABASE_NAME ?? "";
 const FRONTEND_URL = process.env.FRONTEND_URL ?? "";
 const CRM_FRONTEND_URL = process.env.CRM_FRONTEND_URL ?? "";
+const NODE_ENV = process.env.NODE_ENV ?? "development"
 
 // ****************************************************** END OF TESTS ****************************************************** //
 //TODO: Configure server logs propely
@@ -101,7 +102,7 @@ export const startServer = async (server: FastifyInstance) => {
 connectToDatabase() //Start the database
   .then((server) => startServer(server))  //Prepare the server
   .then((server) => { //Start listening
-    server.listen({ port: 4000 }, (err, address) => {
+    server.listen({ port: 4000, host: NODE_ENV === "development" ? undefined : '0.0.0.0' }, (err, address) => {
       if (err) {
         console.error(err)
         process.exit(1);
