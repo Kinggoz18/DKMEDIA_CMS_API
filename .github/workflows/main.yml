@@ -19,7 +19,7 @@ jobs:
           node-version: "22.14" # Specify explicit version
 
       - name: Install Dependencies
-        run: npm install # Clean install for consistency
+        run: npm ci # Clean install for consistency
 
       - name: Build Application
         run: npm run build # Ensure lowercase if package.json uses "build"
