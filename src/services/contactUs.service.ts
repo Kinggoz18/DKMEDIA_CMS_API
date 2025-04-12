@@ -6,19 +6,33 @@ import { IReplyType } from "../interfaces/IReply";
 import { RequestQueryValidationType } from "../types/RequestQuery.type";
 import { ContactUsDocument, ContactUsModel } from "../schema/contactUs";
 import { ReplyError } from "../interfaces/ReplyError";
+import initEmailJs from "../config/emailJs";
+
+import dotenv from 'dotenv';
+dotenv.config();
 
 export class ContactUsService implements IService<ContactUsDocument> {
   dbModel = ContactUsModel;
   dbCollection: mongodb.Collection<ContactUsDocument>;
   logger: FastifyBaseLogger;
+  emailJS: any;
+  emailJSId: string;
 
   constructor(dbCollection: mongodb.Collection<ContactUsDocument>, logger: FastifyBaseLogger) {
     this.dbCollection = dbCollection;
     this.logger = logger;
+    this.emailJSId = process.env.EMAILJS_SERVICE_ID ?? "";
 
     if (!dbCollection) {
       logger.error("Failed to load event collection")
       return;
+    }
+
+    //Initialize emailJs
+    this.emailJS = initEmailJs();
+
+    if (this.emailJSId === "") {
+      throw new Error("Contact Us Error: EmailJS service Id is missing")
     }
   }
 
@@ -61,7 +75,11 @@ export class ContactUsService implements IService<ContactUsDocument> {
         throw new ReplyError("Failed to save contact us inquiry", 400);
       }
 
-      //TODO: Send email here
+      try {
+        await this.sendEmailJs(`${firstName} ${lastName}`, subject, email, message, company, phone);
+      } catch (error: any) {
+        request.log.error(error?.message ?? error.text ?? error)
+      }
 
       return reply.code(201).send({ data: getNewContactUs, success: newContactUs.acknowledged })
 
@@ -116,6 +134,26 @@ export class ContactUsService implements IService<ContactUsDocument> {
     } catch (error: any) {
       request.log.error(error?.message)
       return reply.status(500).send({ success: false, data: "Sorry, something went wrong" })
+    }
+  }
+
+  private sendEmailJs = async (senderName: string, subject: string, senderEmail: string, senderMessage: string, senderCompany?: string, senderPhone?: string) => {
+    try {
+      var templateParams = {
+        name: senderName,
+        subject: subject,
+        email: senderEmail,
+        message: senderMessage,
+        company: senderCompany,
+        phone: senderPhone,
+        time: new Date().toLocaleTimeString()
+      };
+
+      await this.emailJS.send(this.emailJSId, "template_56ynach", templateParams)
+      await this.emailJS.send(this.emailJSId, "template_yegolfk", templateParams)
+    } catch (error: any) {
+      console.log({ error });
+      throw new Error(error?.message ?? error.text ?? error)
     }
   }
 }
