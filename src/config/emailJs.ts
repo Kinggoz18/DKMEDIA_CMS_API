@@ -1,4 +1,4 @@
-import emailJs from "@emailJs/nodejs"
+import emailJs from "@emailjs/nodejs"
 import dotenv from 'dotenv';
 dotenv.config();
 
