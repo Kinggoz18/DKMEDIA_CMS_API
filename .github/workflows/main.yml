@@ -21,6 +21,9 @@ jobs:
       - name: Install Dependencies
         run: npm ci # Clean install for consistency
 
+      - name: Build Application
+        run: npm run build # Ensure lowercase if package.json uses "build"
+
       - name: Sync Files to Server
         uses: easingthemes/ssh-deploy@v2.1.5
         env:
@@ -30,9 +33,6 @@ jobs:
           REMOTE_USER: ${{ secrets.VPS_USER }}
           TARGET: "/var/www/dkmedia-api" # Update to actual path
           ARGS: "-az --delete --include='dist/***' --include='package.json' --include='package-lock.json' --include='node_modules/' --exclude='*'"
-
-      - name: Build Application
-        run: npm run build # Ensure lowercase if package.json uses "build"
 
       - name: Restart API Service
         uses: appleboy/ssh-action@v0.1.6
